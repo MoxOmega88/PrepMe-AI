@@ -1,0 +1,93 @@
+Created At: 2026-05-21T15:11:10Z
+Completed At: 2026-05-21T15:11:10Z
+File Path: `file:///c:/PrepMeModel-main/frontend/app/globals.css`
+Total Lines: 412
+Total Bytes: 13791
+Showing lines 1 to 412
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: @tailwind base;
+2: @tailwind components;
+3: @tailwind utilities;
+4: 
+5: /* ── Fonts ─────────────────────────────────────────────────────────────────── */
+6: @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+7: 
+8: /* ── Palette ────────────────────────────────────────────────────────────────── */
+9: /*
+10:   Body bg:    #E8E3D9  warm parchment (Tavus-style)
+11:   Nav bg:     #FFFFFF  white
+12:   Card bg:    #FFFFFF  white on parchment = visible depth
+13:   Border:     #C0BAB0  warm light grey
+14:   Text:       #1A1A1A  near-black
+15:   Muted:      #777068  warm mid-grey
+16:   Accents:    #FF4D6D  pink  (unchanged)
+17:               #39FF6A  green (unchanged)
+18:               #F5A623  amber (unchanged)
+19: */
+20: 
+21: /* ── CSS Variables ──────────────────────────────────────────────────────────── */
+22: @layer base {
+23:   :root {
+24:     --bg:           #f9f8f6;
+25:     --surface:      #FFFFFF;
+26:     --surface-2:    #F2EDE5;
+27:     --border-color: #C0BAB0;
+28:     --text:         #1A1A1A;
+29:     --text-muted:   #777068;
+30:     --pink:         #FF4D6D;
+31:     --green:        #39FF6A;
+32:     --amb
+<truncated 12165 bytes>
+s bar ───────────────────────────────────────────────────────────── */
+362: .neo-progress {
+363:   height: 5px;
+364:   background: #E8E3D9;
+365:   border: 1px solid #C0BAB0;
+366:   overflow: hidden;
+367: }
+368: .neo-progress-fill { height: 100%; transition: width 0.5s ease; }
+369: 
+370: /* ── Neo-brutalist range slider ─────────────────────────────────────────────── */
+371: .neo-range {
+372:   -webkit-appearance: none;
+373:   appearance: none;
+374:   width: 100%;
+375:   height: 6px;
+376:   background: #E8E3D9;
+377:   border: 1px solid #C0BAB0;
+378:   outline: none;
+379:   cursor: pointer;
+380:   transition: all 0.3s ease;
+381: }
+382: .neo-range::-webkit-slider-thumb {
+383:   -webkit-appearance: none;
+384:   width: 16px;
+385:   height: 16px;
+386:   background: #FF4D6D;
+387:   border: 2px solid #1A1A1A;
+388:   border-radius: 0;
+389:   cursor: pointer;
+390:   box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+391:   transition: all 0.3s ease;
+392: }
+393: .neo-range::-webkit-slider-thumb:hover {
+394:   transform: scale(1.15);
+395:   box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+396: }
+397: .neo-range::-moz-range-thumb {
+398:   width: 16px;
+399:   height: 16px;
+400:   background: #FF4D6D;
+401:   border: 2px solid #1A1A1A;
+402:   border-radius: 0;
+403:   cursor: pointer;
+404:   box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+405:   transition: all 0.3s ease;
+406: }
+407: 
+408: /* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+409: ::-webkit-scrollbar       { width: 4px; }
+410: ::-webkit-scrollbar-track { background: #f9f8f6; }
+411: ::-webkit-scrollbar-thumb { background: #C0BAB0; }
+412: 
+The above content shows the entire, complete file contents of the requested file.

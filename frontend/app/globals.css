@@ -1,0 +1,287 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Fonts ─────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── CSS Variables ──────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* shadcn tokens — dark glassmorphism theme */
+    --background: 228 25% 10%;        /* #13131F dark charcoal */
+    --foreground: 0 0% 92%;           /* #EBEBEB near-white */
+    --card: 228 22% 14%;              /* #181826 dark card surface */
+    --card-foreground: 0 0% 92%;
+    --popover: 228 22% 14%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 0 0% 92%;              /* near-white as primary */
+    --primary-foreground: 228 25% 10%;
+    --secondary: 228 20% 18%;         /* slightly lighter dark */
+    --secondary-foreground: 0 0% 80%;
+    --muted: 228 20% 18%;
+    --muted-foreground: 0 0% 55%;     /* dimmed text on dark */
+    --accent: 228 20% 18%;
+    --accent-foreground: 0 0% 92%;
+    --destructive: 349 100% 65%;      /* keep pink accent */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 22%;               /* subtle border on dark */
+    --input: 0 0% 22%;
+    --ring: 349 100% 65%;             /* pink focus ring */
+    --radius: 0rem;
+
+    /* Dark surface palette */
+    --surface-0: #0D0D1A;             /* deepest background */
+    --surface-1: #12121E;             /* nav / header */
+    --surface-2: #181826;             /* cards */
+    --surface-3: #1E1E30;             /* elevated elements */
+    --surface-border: rgba(255,255,255,0.10);
+    --surface-border-strong: rgba(255,255,255,0.18);
+  }
+}
+
+/* ── Base resets ────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    background-color: #0D0D1A;
+  }
+
+  body {
+    background-color: #0D0D1A;
+    background-image: url('/dark-bg-pattern.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #E8E8F0;
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    letter-spacing: -0.02em;
+    color: #FFFFFF;
+  }
+}
+
+/* ── Utilities ──────────────────────────────────────────────────────────────── */
+.pink { color: #FF4D6D; }
+.green { color: #39FF6A; }
+.amber { color: #F5A623; }
+
+/* ── Neo-brutalist button ───────────────────────────────────────────────────── */
+.brut-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 6px 6px 0px 0px #2A2A40;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #E8E8F0;
+  border-radius: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.brut-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+
+.brut-btn:hover::after {
+  left: 150%;
+}
+
+.brut-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.40);
+  box-shadow: 8px 8px 0px 0px #383854, inset 0 0 10px rgba(255,255,255,0.05);
+  transform: translate(-2px, -2px);
+}
+
+.brut-btn:active {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 2px 2px 0px 0px #383854;
+  transform: translate(4px, 4px);
+}
+
+.brut-btn-pink {
+  background: #FF4D6D;
+  border-color: #FF4D6D;
+  color: #ffffff;
+  box-shadow: 6px 6px 0px 0px rgba(255, 77, 109, 0.5);
+}
+
+.brut-btn-pink::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.brut-btn-pink:hover {
+  background: #ff3355;
+  box-shadow: 8px 8px 0px 0px rgba(255, 77, 109, 0.7), 0 0 30px rgba(255, 77, 109, 0.6), inset 0 0 15px rgba(255,255,255,0.2);
+  border-color: #ff889d;
+  transform: translate(-2px, -2px) scale(1.02);
+}
+
+.brut-btn-pink:active {
+  box-shadow: 2px 2px 0px 0px rgba(255, 77, 109, 0.7);
+  transform: translate(4px, 4px);
+}
+
+/* ── Dark glass card ────────────────────────────────────────────────────────── */
+.neo-card {
+  background: rgba(16, 16, 32, 0.82);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0;
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 8px 8px 0px 0px #2A2A40;
+}
+
+.neo-card:hover {
+  box-shadow: 12px 12px 0px 0px #383854, inset 0 0 0 1px rgba(255,255,255,0.1);
+  transform: translate(-4px, -4px) scale(1.01);
+  background: rgba(22, 22, 40, 0.9);
+}
+
+.neo-card-pink:hover  { 
+  box-shadow: 12px 12px 0px 0px rgba(255, 77, 109, 0.6), 0 0 30px rgba(255, 77, 109, 0.3), inset 0 0 20px rgba(255, 77, 109, 0.15); 
+  border-color: rgba(255, 77, 109, 0.70); 
+}
+.neo-card-green:hover { 
+  box-shadow: 12px 12px 0px 0px rgba(57, 255, 106, 0.5), 0 0 30px rgba(57, 255, 106, 0.3), inset 0 0 20px rgba(57, 255, 106, 0.15); 
+  border-color: rgba(57, 255, 106, 0.65); 
+}
+.neo-card-amber:hover { 
+  box-shadow: 12px 12px 0px 0px rgba(245, 166, 35, 0.5), 0 0 30px rgba(245, 166, 35, 0.3), inset 0 0 20px rgba(245, 166, 35, 0.15); 
+  border-color: rgba(245, 166, 35, 0.65); 
+}
+
+.brut-card {
+  box-shadow: 8px 8px 0px 0px #2A2A40;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brut-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0px 0px #383854;
+}
+
+/* ── Retro titlebar — dark ──────────────────────────────────────────────────── */
+.retro-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.retro-titlebar-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.retro-titlebar-dots span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border: none;
+  border-radius: 0;
+  opacity: 0.85;
+}
+
+/* ── Progress bar — dark ────────────────────────────────────────────────────── */
+.neo-progress {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.neo-progress-fill {
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  background-image: none;
+  position: relative;
+}
+
+/* Subtle inner glow on fill */
+.neo-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 100%);
+  box-shadow: inset 0 0 8px rgba(255,255,255,0.2);
+}
+
+.neo-progress-fill::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: translateX(-100%);
+  animation: progress-shine 2.5s infinite;
+}
+
+@keyframes progress-shine {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes stripe-slide {
+  from { background-position: 0 0; }
+  to   { background-position: 11px 0; }
+}
+
+/* ── Section labels — dark ──────────────────────────────────────────────────── */
+.section-label {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.70);
+  box-shadow: none;
+}
+
+.section-label.pink  { background: rgba(255, 77,  109, 0.12); color: #FF4D6D; border-color: rgba(255, 77,  109, 0.40); }
+.section-label.green { background: rgba(57,  255, 106, 0.10); color: #39FF6A; border-color: rgba(57,  255, 106, 0.35); }
+.section-label.amber { background: rgba(245, 166,  35, 0.10); color: #F5A623; border-color: rgba(245, 166,  35, 0.35); }
+
+/* ── Misc ───────────────────────────────────────────────────────────────────── */
+.topnav-bar {
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--surface-border);
+}

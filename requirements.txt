@@ -1,0 +1,4 @@
+# PrepMeAI – root requirements (backend only, no Streamlit)
+# Use: pip install -r backend/requirements.txt
+# This file is kept for reference; run from backend/ directory.
+-r backend/requirements.txt
