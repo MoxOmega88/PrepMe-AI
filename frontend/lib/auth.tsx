@@ -62,8 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("token")
     if (stored) {
+      // Unblock the guard immediately — token is known synchronously
       setToken(stored)
-      fetchProfile(stored).finally(() => setLoading(false))
+      setLoading(false)
+      // Fetch profile in the background; pages will re-render when it arrives
+      fetchProfile(stored)
     } else {
       setLoading(false)
     }

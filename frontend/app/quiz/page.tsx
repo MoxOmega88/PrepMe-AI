@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { PencilBar } from "@/components/ui/pencil-bar"
 
 // ── Topic lists ────────────────────────────────────────────────────────────────
 const SCIENCE_TOPICS = [
@@ -301,100 +302,110 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
   const selectCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1c1f3a] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors rounded-none"
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
-      <div className="flex items-center justify-between animate-slide-right">
+    <div className="max-w-2xl mx-auto space-y-5 animate-slide-up">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="section-label pink mb-2 animate-[slide-right_0.5s_ease-out_0.1s_both]">Quiz</p>
-          <h1 className="font-serif font-black text-3xl text-[#1c1f3a] animate-[slide-right_0.5s_ease-out_0.2s_both]">Configure Session</h1>
+          <p className="section-label mb-2" style={{ background: "rgba(74,111,165,0.12)", color: "#4A6FA5", border: "1px solid rgba(74,111,165,0.25)" }}>Examination</p>
+          <h1 className="font-serif font-black text-4xl text-[#1c1f3a]">Registration Form</h1>
         </div>
-        <button onClick={onJournal} className="text-[10px] text-[#8888A0] font-bold uppercase tracking-wider hover:text-[#c47c2b] transition-colors animate-[slide-right_0.5s_ease-out_0.3s_both] rounded-none">
+        <button onClick={onJournal} className="text-[10px] text-[#8888A0] font-bold uppercase tracking-wider hover:text-[#c47c2b] transition-colors rounded-none">
           ■ Mistake Journal
         </button>
       </div>
 
-      {/* Mode */}
-      <div className="neo-card neo-card-amber p-5 border border-[rgba(28,31,58,0.14)] rounded-none" style={{ animationDelay: "0.2s" }}>
-        <p className="section-label mb-3">Mode</p>
-        <div className="flex gap-2">
-          {(["practice","exam"] as Mode[]).map(m => (
-            <button key={m} onClick={() => setMode(m)}
-              className={cn("flex-1 py-3 text-xs font-black uppercase tracking-wider transition-colors rounded-none",
-                mode === m ? "bg-[#4A6FA5] text-white shadow-[0_0_15px_rgba(74,111,165,0.4)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#4A6FA5]")}>
-              {m === "practice" ? "🎯 Practice" : "⏱ Exam"}
+      <div className="clipboard-board">
+        <div className="clipboard-clip" />
+        <div className="clipboard-paper border-l-[4px] border-[#1c1f3a] space-y-8">
+          
+          {/* Mode */}
+          <div>
+            <div className="border-b-2 border-dashed border-[rgba(28,31,58,0.15)] pb-2 mb-4">
+              <span className="section-label flex items-center gap-2" style={{ background: "rgba(28,31,58,0.05)", color: "#1c1f3a" }}>Section A: Mode</span>
+            </div>
+            <div className="flex gap-4">
+              {(["practice","exam"] as Mode[]).map(m => (
+                <button key={m} onClick={() => setMode(m)}
+                  className={cn("flex-1 py-4 text-xs font-black uppercase tracking-wider transition-colors rounded-none border-2",
+                    mode === m ? "border-[#1c1f3a] bg-[#1c1f3a] text-white shadow-[4px_4px_0_rgba(28,31,58,0.15)]" : "bg-transparent text-[#1c1f3a] border-[rgba(28,31,58,0.2)] hover:border-[#1c1f3a]")}>
+                  {m === "practice" ? "🎯 Practice" : "⏱ Exam"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Settings */}
+          <div>
+            <div className="border-b-2 border-dashed border-[rgba(28,31,58,0.15)] pb-2 mb-4">
+              <span className="section-label flex items-center gap-2" style={{ background: "rgba(28,31,58,0.05)", color: "#1c1f3a" }}>Section B: Configuration</span>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-2">01. Topic Selection</p>
+                <Select value={topic} onValueChange={setTopic}>
+                  <SelectTrigger className="w-full bg-transparent border-2 border-[rgba(28,31,58,0.2)] text-[#1c1f3a] font-mono text-xs hover:border-[#1c1f3a] transition-colors focus:ring-0 py-4 h-auto rounded-none shadow-[2px_2px_0_rgba(28,31,58,0.05)]">
+                    <SelectValue placeholder="Select a topic" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#fcfaf8] border-2 border-[#1c1f3a] text-[#1c1f3a] font-mono rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)] max-h-64">
+                    {topics.map(t => (
+                      <SelectItem key={t} value={t} className="focus:bg-[rgba(28,31,58,0.05)] focus:text-[#1c1f3a] cursor-pointer text-xs transition-colors py-3 rounded-none">{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-2">02. Question Format</p>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {(["mixed","mcq","truefalse","fillblank","short","teach_back"] as QType[]).map(t => (
+                    <button key={t} onClick={() => setQType(t)}
+                      className={cn("py-3 text-[10px] font-black uppercase tracking-wider transition-colors rounded-none border-2",
+                        qType === t ? "border-[#1c1f3a] bg-[#1c1f3a] text-white" : "bg-transparent text-[#1c1f3a] border-[rgba(28,31,58,0.2)] hover:border-[#1c1f3a]")}>
+                      {t === "mixed" ? "Mix" : t === "mcq" ? "MCQ" : t === "truefalse" ? "T/F" : t === "fillblank" ? "Fill" : t === "short" ? "Short" : "Teach"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-2">03. Quantity</p>
+                <div className="flex gap-2">
+                  {[5,10,15].map(n => (
+                    <button key={n} onClick={() => setCount(n)}
+                      className={cn("flex-1 py-3 text-xs font-black transition-colors rounded-none border-2",
+                        count === n ? "border-[#1c1f3a] bg-[#1c1f3a] text-white" : "bg-transparent text-[#1c1f3a] border-[rgba(28,31,58,0.2)] hover:border-[#1c1f3a]")}>
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a]">04. Difficulty Target</p>
+                  <DifficultyMeter value={difficulty} prevValue={difficulty} />
+                </div>
+                <div className="px-1 py-2">
+                  <Slider
+                    min={0.1} max={1} step={0.1}
+                    value={[difficulty]}
+                    onValueChange={(val) => setDifficulty(val[0])}
+                    fillColor={difficulty < 0.4 ? "#39ff14" : difficulty < 0.8 ? "#ffeb3b" : "#ff0000"}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)] flex justify-end">
+            <button onClick={() => onStart({ topic, qType, mode, count, difficulty })}
+              className="font-mono font-black text-2xl text-[#c0392b] border-4 border-[#c0392b] px-6 py-2 uppercase tracking-widest hover:bg-[#c0392b] hover:text-[#fdfcf9] transition-colors rounded-none transform rotate-[-2deg] shadow-[4px_4px_0_rgba(192,57,43,0.2)] hover:rotate-0">
+              Begin Exam
             </button>
-          ))}
-        </div>
-        <p className="text-[10px] text-[#8888A0] font-mono mt-3">
-          {mode === "practice" ? "Instant feedback · No timer" : "30s timer · Results at end"}
-        </p>
-      </div>
-
-      {/* Settings */}
-      <div className="neo-card neo-card-pink p-5 space-y-5 border border-[rgba(28,31,58,0.14)] rounded-none relative overflow-hidden group/settings" style={{ animationDelay: "0.3s" }}>
-        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(74,111,165,0.4) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-        
-        <div className="relative z-10 space-y-5">
-          <div>
-            <p className="section-label mb-2">Topic</p>
-            <Select value={topic} onValueChange={setTopic}>
-              <SelectTrigger className="w-full bg-[rgba(16,16,32,0.82)] border-[rgba(28,31,58,0.14)] text-[#1c1f3a] font-mono text-xs hover:border-[#4A6FA5] transition-colors focus:ring-[#4A6FA5] py-3 h-auto shadow-md hover:shadow-[0_0_12px_rgba(74,111,165,0.3)]">
-                <SelectValue placeholder="Select a topic" />
-              </SelectTrigger>
-              <SelectContent className="bg-[rgba(255,255,255,0.88)] border-[rgba(28,31,58,0.18)] text-[#1c1f3a] font-mono shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-md max-h-64">
-                {topics.map(t => (
-                  <SelectItem key={t} value={t} className="focus:bg-[#4A6FA5] focus:text-white cursor-pointer text-xs transition-colors py-2">{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
-          <div>
-            <p className="section-label mb-2">Question Type</p>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {(["mixed","mcq","truefalse","fillblank","short","teach_back"] as QType[]).map(t => (
-                <button key={t} onClick={() => setQType(t)}
-                  className={cn("py-2.5 text-[10px] font-black uppercase tracking-wider transition-colors rounded-none",
-                    qType === t ? "bg-[#2a7d4f] text-[#0A0A0A] shadow-[0_0_15px_rgba(42,125,79,0.3)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#2a7d4f]")}>
-                  {t === "mixed" ? "Mix" : t === "mcq" ? "MCQ" : t === "truefalse" ? "T/F" : t === "fillblank" ? "Fill" : t === "short" ? "Short" : "Teach Back"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="section-label mb-2">Questions</p>
-            <div className="flex gap-2">
-              {[5,10,15].map(n => (
-                <button key={n} onClick={() => setCount(n)}
-                  className={cn("flex-1 py-3 text-xs font-black transition-colors rounded-none",
-                    count === n ? "bg-[#4A6FA5] text-white shadow-[0_0_15px_rgba(74,111,165,0.3)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#4A6FA5]")}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <p className="section-label">Difficulty</p>
-              <DifficultyMeter value={difficulty} prevValue={difficulty} />
-            </div>
-            <div className="px-1 py-2">
-              <Slider
-                min={0.1} max={1} step={0.1}
-                value={[difficulty]}
-                onValueChange={(val) => setDifficulty(val[0])}
-                fillColor={diffTier(difficulty) === 0 ? "#2a7d4f" : diffTier(difficulty) === 1 ? "#c47c2b" : "#4A6FA5"}
-              />
-            </div>
-          </div>
         </div>
       </div>
-
-      <button onClick={() => onStart({ topic, qType, mode, count, difficulty })}
-        className="brut-btn brut-btn-pink w-full py-3.5 text-sm font-bold animate-float rounded-none shadow-[0_0_15px_rgba(74,111,165,0.4)]" style={{ animationDelay: "0.4s" }}>
-        Start Quiz →
-      </button>
     </div>
   )
 }
@@ -456,11 +467,11 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
+    <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="font-mono text-xs font-black text-[rgba(28,31,58,0.40)]">Q{idx + 1} / {total}</span>
-          <span className="text-[10px] px-2 py-0.5 bg-[#4A6FA5]/10 text-[#4A6FA5] font-bold uppercase tracking-wider border border-[#4A6FA5]/20 rounded-none">{q.type}</span>
+          <span className="font-mono text-xs font-black text-[#1c1f3a] bg-[rgba(28,31,58,0.05)] px-3 py-1 border border-[#1c1f3a]">QUESTION {idx + 1} / {total}</span>
+          <span className="font-mono text-[10px] px-2 py-1 bg-transparent text-[#1c1f3a] font-bold uppercase tracking-wider border border-[rgba(28,31,58,0.2)]">{q.type}</span>
           <DifficultyMeter value={curDiff} prevValue={prevDiff} />
         </div>
         <div className="flex items-center gap-4">
@@ -468,105 +479,98 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
         </div>
       </div>
 
-      <div className="h-0.5 bg-[#C0BAB0] overflow-hidden rounded-none">
-        <div className="h-full bg-[#4A6FA5] transition-all duration-500" style={{ width: `${progress}%` }} />
-      </div>
-
+      <PencilBar value={progress / 100} color="#1c1f3a" height={10} />
       {attempts.length > 0 && <StreakDots attempts={attempts} />}
 
-      <div className="neo-card neo-card-green p-6 space-y-5 relative border border-[rgba(28,31,58,0.14)] rounded-none overflow-hidden group/qcard">
-        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(42,125,79,0.3) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-        <div className="relative z-10 space-y-5">
-          {/* Top-right live timer */}
-          <div className="absolute top-0 right-0 font-mono text-xs font-bold text-[#2a7d4f] bg-[rgba(42,125,79,0.1)] px-3 py-1 border border-[rgba(42,125,79,0.3)] rounded-none">
-            {formatTime(elapsedSeconds)}
+      <div className="exam-paper group/qcard">
+        {/* Top-right live timer */}
+        <div className="absolute top-6 right-6 font-mono text-xs font-bold text-[#c0392b] bg-transparent px-3 py-1 border-2 border-[#c0392b] rounded-full transform rotate-3">
+          {formatTime(elapsedSeconds)}
+        </div>
+
+        {chapterTopic && (
+          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[rgba(28,31,58,0.5)] mb-4">
+            SUBJECT: {chapterTopic}
+          </p>
+        )}
+        
+        <p className="text-lg text-[#1c1f3a] font-bold leading-relaxed pr-16 mb-8">{idx + 1}. {q.question}</p>
+
+        {q.type === "mcq" && q.options && (
+          <div className="space-y-2 mt-4">
+            {q.options.map((opt, i) => {
+              const letter = ["A","B","C","D"][i]
+              const isSelected = selected === letter
+              return (
+                <button key={i} onClick={() => setSelected(letter)}
+                  className={cn("scantron-opt w-full text-left", isSelected && "selected")}>
+                  <div className="scantron-bubble">{letter}</div>
+                  <span className="font-mono text-sm">{opt.replace(/^[A-D]\)\s*/,"")}</span>
+                </button>
+              )
+            })}
           </div>
+        )}
 
-          {chapterTopic && (
-            <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-[#666680]">
-              ■ CHAPTER: {chapterTopic}
-            </p>
-          )}
-          <p className="text-base text-[#1c1f3a] font-mono leading-relaxed pr-16">{q.question}</p>
-
-          {q.type === "mcq" && q.options && (
-            <div className="space-y-3 mt-2">
-              {q.options.map((opt, i) => {
-                const letter = ["A","B","C","D"][i]
-                return (
-                  <button key={i} onClick={() => setSelected(letter)}
-                    className={cn("w-full text-left px-5 py-4 border text-xs font-mono transition-all duration-300 rounded-none shadow-sm hover:translate-x-1",
-                      selected === letter
-                        ? "border-[#4A6FA5] bg-[#4A6FA5]/15 text-[#4A6FA5] font-bold shadow-[inset_4px_0_0_#4A6FA5]"
-                        : "border-[rgba(255,255,255,0.1)] text-[#1c1f3a] hover:border-[#4A6FA5]/50 hover:bg-[rgba(28,31,58,0.05)] bg-[rgba(16,16,32,0.6)]")}>
-                    <span className={cn("font-black mr-3", selected === letter ? "text-[#4A6FA5]" : "text-[rgba(28,31,58,0.40)]")}>{letter})</span>{opt.replace(/^[A-D]\)\s*/,"")}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-
-          {q.type === "truefalse" && (
-            <div className="flex gap-4 mt-2">
-              {["true","false"].map(v => (
+        {q.type === "truefalse" && (
+          <div className="flex gap-4 mt-4">
+            {["true","false"].map(v => {
+              const isSelected = selected === v
+              return (
                 <button key={v} onClick={() => setSelected(v)}
-                  className={cn("flex-1 py-4 border text-xs font-black uppercase tracking-wider transition-all duration-300 rounded-none hover:-translate-y-1 shadow-md",
-                    selected === v
-                      ? "border-[#2a7d4f] bg-[#2a7d4f]/15 text-[#2a7d4f] shadow-[0_0_15px_rgba(42,125,79,0.2)]"
-                      : "border-[rgba(255,255,255,0.1)] text-[#1c1f3a] hover:border-[#2a7d4f]/50 hover:bg-[rgba(28,31,58,0.05)] bg-[rgba(16,16,32,0.6)]")}>
-                  {v === "true" ? "✓ True" : "✗ False"}
+                  className={cn("scantron-opt flex-1 justify-center", isSelected && "selected")}>
+                  <div className="scantron-bubble">{v === "true" ? "T" : "F"}</div>
+                  <span className="font-mono text-sm font-bold uppercase">{v}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {q.type === "fillblank" && (
+          <input value={selected} onChange={e => setSelected(e.target.value)}
+            placeholder="Write your answer on the line..."
+            className="w-full bg-transparent border-0 border-b-2 border-dashed border-[#1c1f3a] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-solid transition-all mt-4" />
+        )}
+
+        {q.type === "short" && (
+          <textarea value={selected} onChange={e => setSelected(e.target.value)}
+            placeholder="Write your answer..." rows={4}
+            className="w-full bg-[rgba(28,31,58,0.02)] border border-[rgba(28,31,58,0.15)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#1c1f3a] transition-all resize-none mt-4" />
+        )}
+
+        {q.type === "teach_back" && (
+          <textarea
+            value={selected}
+            onChange={e => setSelected(e.target.value)}
+            placeholder="Explain in your own words — aim for 3+ sentences"
+            style={{ minHeight: "140px", backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, rgba(74,111,165,0.2) 27px, rgba(74,111,165,0.2) 28px)", lineHeight: "28px" }}
+            className="w-full bg-[#fdfcf9] border border-[rgba(28,31,58,0.15)] text-[#1c1f3a] px-4 py-1 text-sm font-mono outline-none focus:border-[#1c1f3a] transition-all resize-none mt-4"
+          />
+        )}
+
+        {q.type !== "teach_back" && (
+          <div className="border-t-2 border-dashed border-[rgba(28,31,58,0.15)] pt-6 mt-8">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-4">Confidence Level</p>
+            <div className="flex gap-3">
+              {([["sure","😎 Sure"],["unsure","🤔 Unsure"],["guessing","🎲 Guessing"]] as [Confidence,string][]).map(([val,label]) => (
+                <button key={val} onClick={() => setConfidence(val)}
+                  className={cn("flex-1 py-3 text-[10px] font-black uppercase tracking-wider transition-all rounded-none border-2",
+                    confidence === val
+                      ? "border-[#1c1f3a] bg-[#1c1f3a] text-white shadow-[2px_2px_0_rgba(28,31,58,0.15)]"
+                      : "bg-transparent text-[#1c1f3a] border-[rgba(28,31,58,0.2)] hover:border-[#1c1f3a]")}>
+                  {label}
                 </button>
               ))}
             </div>
-          )}
-
-          {q.type === "fillblank" && (
-            <input value={selected} onChange={e => setSelected(e.target.value)}
-              placeholder="Type the missing word…"
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all rounded-none mt-2" />
-          )}
-
-          {q.type === "short" && (
-            <textarea value={selected} onChange={e => setSelected(e.target.value)}
-              placeholder="Write your answer…" rows={4}
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all resize-none rounded-none mt-2" />
-          )}
-
-          {q.type === "teach_back" && (
-            <textarea
-              value={selected}
-              onChange={e => setSelected(e.target.value)}
-              placeholder="Explain in your own words — aim for 3+ sentences"
-              style={{ minHeight: "140px" }}
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all resize-none rounded-none mt-2"
-            />
-          )}
-
-          {q.type !== "teach_back" && (
-            <div className="border-t border-[rgba(255,255,255,0.1)] pt-4 mt-6">
-              <p className="section-label mb-3">How confident are you?</p>
-              <div className="flex gap-3">
-                {([["sure","😎 Sure"],["unsure","🤔 Unsure"],["guessing","🎲 Guessing"]] as [Confidence,string][]).map(([val,label]) => (
-                  <button key={val} onClick={() => setConfidence(val)}
-                    className={cn("flex-1 py-3 text-[10px] font-black uppercase tracking-wider border transition-all duration-300 rounded-none hover:-translate-y-1",
-                      confidence === val
-                        ? "border-[#2a7d4f] bg-[#2a7d4f]/15 text-[#2a7d4f] shadow-[0_0_15px_rgba(42,125,79,0.2)]"
-                        : "border-[rgba(255,255,255,0.1)] text-[rgba(28,31,58,0.40)] hover:border-[rgba(255,255,255,0.3)] hover:text-[#1c1f3a] bg-[rgba(16,16,32,0.6)]")}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="relative mt-6">
-            <button onClick={submit} disabled={!canSubmit}
-              className="brut-btn brut-btn-pink w-full py-3.5 text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none rounded-none overflow-hidden group/submit">
-              <span className="relative z-10 transition-transform duration-300 group-hover/submit:translate-x-1 inline-block">
-                {busy ? "Checking…" : (q.type !== "teach_back" && !confidence) ? "Select confidence to submit" : "Submit Answer →"}
-              </span>
-            </button>
           </div>
+        )}
+
+        <div className="relative mt-8 text-right">
+          <button onClick={submit} disabled={!canSubmit}
+            className="font-mono font-black text-lg text-[#1c1f3a] border-2 border-[#1c1f3a] px-8 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)] disabled:opacity-30 disabled:shadow-none disabled:hover:bg-transparent disabled:hover:text-[#1c1f3a] disabled:cursor-not-allowed">
+            {busy ? "Checking..." : (q.type !== "teach_back" && !confidence) ? "Select Confidence" : "Submit Answer"}
+          </button>
         </div>
       </div>
     </div>
@@ -588,66 +592,68 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
 
   if (q.type === "teach_back" || assessment.teach_back) {
     return (
-      <div className="max-w-3xl mx-auto space-y-4 animate-in slide-in-from-bottom-2 duration-300">
-        <div className="p-5 space-y-4 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
-          <p className="section-label pink mb-3">Teach-Back Rubric</p>
-          <div className="space-y-2 font-mono text-xs">
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#1c1f3a]">Accuracy</span>
-              <span className="font-black text-sm text-[#2a7d4f]">{assessment.accuracy ?? 0}/10</span>
+      <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
+        <div className="exam-paper space-y-6">
+          <div className="border-b-4 border-double border-[#1c1f3a] pb-4 mb-6">
+            <h2 className="font-serif font-black text-2xl text-[#1c1f3a] uppercase tracking-widest text-center">Teach-Back Evaluation</h2>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 font-mono text-sm border-b-2 border-dashed border-[rgba(28,31,58,0.15)] pb-6">
+            <div className="text-center">
+              <p className="font-bold text-[#1c1f3a] mb-2">Accuracy</p>
+              <span className="font-black text-2xl text-[#c0392b] red-pen"><span className="red-circle">{assessment.accuracy ?? 0}</span>/10</span>
             </div>
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#1c1f3a]">Completeness</span>
-              <span className="font-black text-sm text-[#c47c2b]">{assessment.completeness ?? 0}/10</span>
+            <div className="text-center">
+              <p className="font-bold text-[#1c1f3a] mb-2">Completeness</p>
+              <span className="font-black text-2xl text-[#c0392b] red-pen"><span className="red-circle">{assessment.completeness ?? 0}</span>/10</span>
             </div>
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#1c1f3a]">Clarity</span>
-              <span className="font-black text-sm text-[#4A6FA5]">{assessment.clarity ?? 0}/10</span>
+            <div className="text-center">
+              <p className="font-bold text-[#1c1f3a] mb-2">Clarity</p>
+              <span className="font-black text-2xl text-[#c0392b] red-pen"><span className="red-circle">{assessment.clarity ?? 0}</span>/10</span>
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center p-4 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
-            <p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-mono">Overall Score</p>
-            <p className="font-serif font-black text-5xl text-[#1c1f3a] mt-1">{assessment.score_percentage}</p>
-            <p className="text-[10px] text-[#8888A0] font-mono mt-1">/ 100</p>
+          <div className="flex flex-col items-center justify-center py-4">
+            <p className="font-mono text-[10px] text-[#1c1f3a] uppercase tracking-widest font-bold mb-2">Final Grade</p>
+            <div className="relative">
+              <span className="font-serif font-black text-6xl text-[#c0392b] red-pen transform -rotate-6 block">{assessment.score_percentage}%</span>
+            </div>
           </div>
 
-          <div className="pt-2">
-            <p className="section-label green mb-2">Teacher Feedback</p>
-            <p className="text-sm text-[#1c1f3a] font-mono leading-relaxed">{assessment.feedback_for_student}</p>
+          <div className="pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+            <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-4 flex items-center gap-2">
+              <span className="text-lg">✎</span> Teacher's Notes
+            </p>
+            <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
           </div>
 
           {assessment.key_points_missed && assessment.key_points_missed.length > 0 && (
-            <div className="pt-2 border-t border-[rgba(255,255,255,0.1)]">
-              <p className="section-label pink mb-2">Missed points:</p>
-              <ul className="list-disc pl-5 text-sm text-[#1c1f3a] font-mono space-y-1">
+            <div className="pt-6 mt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+              <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-4">Missed Points:</p>
+              <ul className="list-none space-y-2">
                 {assessment.key_points_missed.map((pt, i) => (
-                  <li key={i}>{pt}</li>
+                  <li key={i} className="text-[#c0392b] red-pen text-lg flex items-start gap-2">
+                    <span>-</span> <span>{pt}</span>
+                  </li>
                 ))}
               </ul>
             </div>
           )}
         </div>
 
-        <button onClick={onNext} className="brut-btn brut-btn-pink w-full py-2.5 text-xs rounded-none">
-          {isLast ? "See Results →" : "Next Question →"}
-        </button>
+        <div className="text-right">
+          <button onClick={onNext} className="font-mono font-black text-lg text-[#1c1f3a] border-2 border-[#1c1f3a] px-8 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)]">
+            {isLast ? "See Final Grade" : "Next Question"}
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+    <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
       <div className="relative">
         <XPFloat amount={xpEarned} visible={showXP} />
-        <ResultBanner correctness={assessment.correctness} confidence={confidence} xpEarned={xpEarned} diffDelta={0} />
-      </div>
-      <MisconceptionBox text={assessment.misconception ?? ""} visible={showMisconception} onJournal={onJournal} />
-
-      {q.type === "mcq" && q.options && (
-        <div className="p-4 space-y-2 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
-          {q.options.map((opt, i) => {
-            const letter = ["A","B","C","D"][i]
             const isCorrect = letter === String(q.correct).toUpperCase()
             const isStudent = letter === studentAnswer.toUpperCase()
             return (
@@ -665,22 +671,26 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
       )}
 
       {(q.type === "short" || q.type === "fillblank") && assessment.model_answer && (
-        <div className="p-4 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
-          <p className="section-label green mb-1">Model Answer</p>
-          <p className="text-sm text-[#1c1f3a] font-mono mt-2">{assessment.model_answer}</p>
+        <div className="mt-6 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+          <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2">Model Answer</p>
+          <p className="text-xl text-[#c0392b] red-pen">{assessment.model_answer}</p>
         </div>
       )}
 
       {q.explanation && (
-        <div className="border-l-4 border-[#2a7d4f] bg-[#2a7d4f]/5 p-4 rounded-none">
-          <p className="section-label green mb-1">Explanation</p>
-          <p className="text-sm text-[#1c1f3a] font-mono mt-2">{q.explanation}</p>
+        <div className="mt-6 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+          <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
+            <span className="text-lg">✎</span> Teacher's Note
+          </p>
+          <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{q.explanation}</p>
         </div>
       )}
 
-      <button onClick={onNext} className="brut-btn brut-btn-pink w-full py-2.5 text-xs rounded-none">
-        {isLast ? "See Results →" : "Next Question →"}
-      </button>
+      <div className="text-right mt-8 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+        <button onClick={onNext} className="font-mono font-black text-lg text-[#1c1f3a] border-2 border-[#1c1f3a] px-8 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)]">
+          {isLast ? "See Final Grade" : "Next Question"}
+        </button>
+      </div>
     </div>
   )
 }
@@ -721,67 +731,106 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
   ]
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5 animate-in slide-in-from-bottom-2 duration-300">
-      <div>
-        <p className="section-label pink mb-2">Results</p>
-        <h1 className="font-serif font-black text-4xl" style={{ color }}>{correct}/{total}</h1>
-        <p className="text-[rgba(28,31,58,0.40)] font-mono text-sm mt-1">{pct}% accuracy</p>
-        <div className="flex gap-6 mt-3">
-          <div><p className="font-mono font-black text-[#2a7d4f]">+{totalXP}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">XP earned</p></div>
-          <div><p className="font-mono font-black text-[#c47c2b]">{getStreak()}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">day streak</p></div>
+    <div className="max-w-3xl mx-auto animate-slide-up">
+      <div className="report-card">
+        <div className="report-card-header">
+          <p className="font-mono text-xs uppercase tracking-widest text-[#1c1f3a] mb-2 font-bold">Official Examination Record</p>
+          <h1 className="font-serif font-black text-4xl text-[#1c1f3a]">Student Report Card</h1>
+          <p className="font-mono text-sm text-[rgba(28,31,58,0.6)] mt-2 italic">Subject: {topic}</p>
         </div>
-      </div>
 
-      {/* Confidence 2x2 grid */}
-      <div>
-        <p className="section-label amber mb-3">Confidence vs Accuracy</p>
-        <div className="grid grid-cols-2 gap-2">
-          {confCards.map(c => (
-            <div key={c.label} className={cn("brut-card p-4 border rounded-none", c.border, c.danger ? "ring-1 ring-[#4A6FA5]" : "")}>
-              <p className="text-xl mb-1">{c.icon}</p>
-              <p className={cn("font-mono text-3xl font-black", c.text)}>{c.count}</p>
-              <p className="text-[10px] text-[#8888A0] mt-1 uppercase tracking-wider font-bold">{c.label}</p>
-            </div>
-          ))}
-        </div>
-        {insight && (
-          <div className="border-l-4 border-[#4A6FA5] bg-[#4A6FA5]/5 p-3 mt-3 rounded-none">
-            <p className="section-label pink mb-1">AI Insight</p>
-            <p className="text-xs text-[#1c1f3a] font-mono mt-1">{insight}</p>
+        <div className="flex flex-col md:flex-row gap-8 mb-8">
+          <div className="flex-1 flex flex-col items-center justify-center border-4 border-[#1c1f3a] p-6 relative">
+            <span className="absolute top-0 left-0 bg-[#1c1f3a] text-[#fdfcf9] font-mono text-[10px] uppercase tracking-widest px-2 py-1 font-bold">Final Grade</span>
+            
+            {pct >= 90 ? (
+              <span className="font-serif font-black text-8xl text-[#2a7d4f] red-pen mt-4" style={{ color: '#2a7d4f' }}>A</span>
+            ) : pct >= 80 ? (
+              <span className="font-serif font-black text-8xl text-[#2a7d4f] red-pen mt-4" style={{ color: '#2a7d4f' }}>B</span>
+            ) : pct >= 70 ? (
+              <span className="font-serif font-black text-8xl text-[#c47c2b] red-pen mt-4" style={{ color: '#c47c2b' }}>C</span>
+            ) : pct >= 60 ? (
+              <span className="font-serif font-black text-8xl text-[#c47c2b] red-pen mt-4" style={{ color: '#c47c2b' }}>D</span>
+            ) : (
+              <span className="font-serif font-black text-8xl text-[#c0392b] red-pen mt-4">F</span>
+            )}
+            
+            <p className="font-mono text-lg font-bold text-[#1c1f3a] mt-2 border-t-2 border-dashed border-[rgba(28,31,58,0.15)] pt-2 w-full text-center">Score: {pct}% ({correct}/{total})</p>
           </div>
-        )}
-      </div>
 
-      {/* Breakdown */}
-      <div className="p-4 space-y-3 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
-        <p className="section-label mb-2">Question Breakdown</p>
-        {attempts.map((a, i) => {
-          const c = a.assessment.correctness
-          const icon = c === "correct" ? "✅" : c === "partially_correct" ? "⚡" : "❌"
-          const confEmoji = a.confidence === "sure" ? "😎" : a.confidence === "unsure" ? "🤔" : "🎲"
-          return (
-            <div key={i} className="flex items-start gap-3 py-2 border-b border-[rgba(28,31,58,0.08)] last:border-0">
-              <span className="text-base flex-shrink-0">{icon}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs text-[#1c1f3a] font-mono truncate">{a.question.question}</p>
-                <p className="text-[10px] text-[#8888A0] mt-0.5 font-mono">
-                  {confEmoji} {a.confidence} · {a.studentAnswer || "—"}
-                  {a.assessment.model_answer && c !== "correct" && (
-                    <> · <span className="text-[#2a7d4f]">{a.assessment.model_answer}</span></>
-                  )}
-                </p>
-              </div>
-              <span className="font-mono text-[10px] text-[#8888A0] flex-shrink-0">+{a.xpEarned}xp</span>
+          <div className="flex-1 space-y-4 font-mono">
+            <div className="border-2 border-[rgba(28,31,58,0.15)] p-4 flex justify-between items-center">
+              <span className="text-xs uppercase tracking-widest font-bold text-[#1c1f3a]">XP Earned</span>
+              <span className="text-xl font-black text-[#1c1f3a]">+{totalXP}</span>
             </div>
-          )
-        })}
-      </div>
+            <div className="border-2 border-[rgba(28,31,58,0.15)] p-4 flex justify-between items-center">
+              <span className="text-xs uppercase tracking-widest font-bold text-[#1c1f3a]">Day Streak</span>
+              <span className="text-xl font-black text-[#1c1f3a]">{getStreak()}</span>
+            </div>
+            
+            {insight && (
+              <div className="border-2 border-[#1c1f3a] p-4 bg-[#1c1f3a] text-[#fdfcf9]">
+                <p className="text-[10px] uppercase tracking-widest font-bold mb-2 text-[rgba(253,252,249,0.6)]">Teacher's Remark</p>
+                <p className="text-sm italic">"{insight}"</p>
+              </div>
+            )}
+          </div>
+        </div>
 
-      <div className="flex gap-3">
-        <button onClick={onRetake} className="brut-btn brut-btn-pink flex-1 py-2.5 text-xs rounded-none">Retake Quiz</button>
-        <Link href="/planner" className="flex-1">
-          <button className="brut-btn brut-btn-outline w-full py-2.5 text-xs rounded-none">Go to Planner</button>
-        </Link>
+        {/* Confidence 2x2 grid */}
+        <div className="mb-8 border-t-4 border-double border-[#1c1f3a] pt-6">
+          <p className="font-serif font-black text-xl text-[#1c1f3a] mb-4">Confidence Breakdown</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-2 border-[#1c1f3a]">
+            {confCards.map((c, i) => (
+              <div key={c.label} className={cn("p-4 border-[#1c1f3a]", 
+                i !== 3 ? "border-r-2" : "",
+                i < 2 ? "border-b-2 md:border-b-0" : ""
+              )}>
+                <p className="text-2xl mb-2">{c.icon}</p>
+                <p className={cn("font-mono text-4xl font-black", c.text)}>{c.count}</p>
+                <p className="text-[10px] text-[#1c1f3a] mt-2 uppercase tracking-widest font-bold">{c.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Breakdown */}
+        <div className="border-t-4 border-double border-[#1c1f3a] pt-6">
+          <p className="font-serif font-black text-xl text-[#1c1f3a] mb-4">Question Ledger</p>
+          <div className="border-2 border-[rgba(28,31,58,0.15)]">
+            {attempts.map((a, i) => {
+              const c = a.assessment.correctness
+              const isCorrect = c === "correct"
+              const confEmoji = a.confidence === "sure" ? "😎" : a.confidence === "unsure" ? "🤔" : "🎲"
+              return (
+                <div key={i} className="flex items-start gap-4 p-4 border-b-2 border-dashed border-[rgba(28,31,58,0.15)] last:border-0 hover:bg-[rgba(28,31,58,0.02)] transition-colors">
+              <span className="font-serif font-black text-2xl text-[#1c1f3a] opacity-30 w-8">{i+1}.</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-[#1c1f3a] font-mono mb-2">{a.question.question}</p>
+                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold font-mono">
+                      <span className={isCorrect ? "text-[#2a7d4f]" : "text-[#c0392b]"}>
+                        {isCorrect ? "PASSED" : "FAILED"}
+                      </span>
+                      <span className="text-[rgba(28,31,58,0.3)]">|</span>
+                      <span className="text-[rgba(28,31,58,0.6)]">Conf: {a.confidence}</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="flex gap-4 mt-8 pt-6 border-t-4 border-double border-[#1c1f3a]">
+          <button onClick={onRetake} className="flex-1 font-mono font-black text-sm text-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-4 uppercase tracking-widest hover:bg-[rgba(28,31,58,0.05)] transition-colors rounded-none">
+            Retake Exam
+          </button>
+          <Link href="/planner" className="flex-1">
+            <button className="w-full font-mono font-black text-sm text-[#fdfcf9] bg-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-4 uppercase tracking-widest hover:bg-[#2a2d4a] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.2)]">
+              Return to Desk
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   )
@@ -807,45 +856,71 @@ function JournalScreen({ authFetch, onBack, onRetry }: {
   mistakes.forEach(m => { if (!grouped[m.topic]) grouped[m.topic] = []; grouped[m.topic].push(m) })
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-[10px] text-[rgba(28,31,58,0.40)] font-bold uppercase tracking-wider hover:text-[#1c1f3a] transition-colors rounded-none">← Back</button>
-        <div>
-          <p className="section-label amber mb-1">History</p>
-          <h1 className="font-serif font-black text-2xl text-[#1c1f3a]">Mistake Journal</h1>
-        </div>
+    <div className="max-w-4xl mx-auto animate-slide-up">
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={onBack} className="font-mono text-sm text-[rgba(28,31,58,0.6)] font-bold uppercase tracking-widest hover:text-[#1c1f3a] transition-colors rounded-none border-b-2 border-transparent hover:border-[#1c1f3a] pb-1">&larr; Back to Registration</button>
       </div>
 
-      <select value={filter} onChange={e => setFilter(e.target.value)}
-        className="w-full bg-[#1E1E2E] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors rounded-none">
-        <option value="">All topics</option>
-        {topics.map(t => <option key={t}>{t}</option>)}
-      </select>
+      <div className="composition-book">
+        <div className="composition-page">
+          <div className="border-b-4 border-double border-[#1c1f3a] pb-4 mb-8">
+            <h1 className="font-serif font-black text-4xl text-[#1c1f3a] tracking-tight">Mistake Journal</h1>
+            <p className="font-mono text-xs text-[rgba(28,31,58,0.6)] mt-2 italic">Student Notes & Corrections</p>
+          </div>
 
-      {loading ? <p className="text-[#8888A0] text-xs font-mono">Loading…</p>
-        : mistakes.length === 0 ? <p className="text-[#8888A0] text-xs font-mono">No mistakes yet — keep quizzing!</p>
-        : Object.entries(grouped).map(([topic, items]) => (
-          <div key={topic} className="p-4 space-y-3 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
-            <div className="flex items-center justify-between">
-              <p className="section-label green">{topic}</p>
-              <button onClick={() => onRetry(topic)} className="text-[10px] text-[#4A6FA5] font-bold uppercase tracking-wider hover:underline rounded-none">
-                Retry →
-              </button>
-            </div>
-            {items.map(m => (
-              <div key={m.id} className="border-t border-[rgba(28,31,58,0.08)] pt-3 space-y-1 rounded-none">
-                <p className="text-xs text-[#1c1f3a] font-mono">{m.question}</p>
-                <p className="text-[10px] text-[#4A6FA5] font-mono">Your answer: {m.student_answer}</p>
-                <p className="text-[10px] text-[#2a7d4f] font-mono">Correct: {m.correct_answer}</p>
-                {m.misconception && (
-                  <p className="text-[10px] text-[#c47c2b] bg-[#c47c2b]/5 border-l-2 border-[#c47c2b] px-2 py-1 font-mono">⚠️ {m.misconception}</p>
-                )}
-                <p className="text-[10px] text-[#8888A0] font-mono">{m.confidence} · {new Date(m.created_at).toLocaleDateString()}</p>
+          <div className="mb-8 flex gap-4">
+            <select value={filter} onChange={e => setFilter(e.target.value)}
+              className="flex-1 bg-transparent border-0 border-b-2 border-dashed border-[#1c1f3a] text-[#1c1f3a] px-0 py-2 text-sm font-mono outline-none focus:border-solid transition-colors rounded-none font-bold">
+              <option value="">All Topics (Full Book)</option>
+              {topics.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          {loading ? <p className="text-[#1c1f3a] text-lg font-serif italic text-center py-12">Flipping pages...</p>
+            : mistakes.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-[#2a7d4f] font-serif italic text-2xl mb-2">Blank Pages!</p>
+                <p className="text-[#1c1f3a] font-mono text-sm opacity-60">No mistakes logged yet. Keep up the good work.</p>
+              </div>
+            )
+            : Object.entries(grouped).map(([topic, items]) => (
+              <div key={topic} className="mb-12 relative">
+                <div className="flex items-center justify-between border-b-2 border-[#1c1f3a] pb-2 mb-6">
+                  <h2 className="font-serif font-bold text-2xl text-[#1c1f3a] capitalize">{topic}</h2>
+                  <button onClick={() => onRetry(topic)} className="font-mono text-[10px] text-[#fdfcf9] bg-[#1c1f3a] px-3 py-1 font-bold uppercase tracking-wider hover:bg-[#c0392b] transition-colors rounded-none">
+                    Retest Topic &rarr;
+                  </button>
+                </div>
+                
+                <div className="space-y-8">
+                  {items.map(m => (
+                    <div key={m.id} className="relative group/mistake pl-4 border-l-2 border-[rgba(28,31,58,0.15)] hover:border-[#1c1f3a] transition-colors">
+                      <p className="text-lg text-[#1c1f3a] font-bold leading-relaxed mb-4">{m.question}</p>
+                      
+                      <div className="space-y-3 font-mono text-sm">
+                        <div className="flex gap-4">
+                          <span className="w-24 text-[10px] uppercase tracking-widest text-[rgba(28,31,58,0.5)] font-bold pt-1">Your Answer:</span>
+                          <span className="flex-1 text-[#1c1f3a] line-through decoration-[#c0392b] decoration-2">{m.student_answer}</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="w-24 text-[10px] uppercase tracking-widest text-[rgba(28,31,58,0.5)] font-bold pt-1">Correction:</span>
+                          <span className="flex-1 text-[#2a7d4f] font-bold">{m.correct_answer}</span>
+                        </div>
+                        {m.misconception && (
+                          <div className="flex gap-4 mt-4 pt-4 border-t border-dashed border-[rgba(28,31,58,0.15)]">
+                            <span className="w-24 text-[10px] uppercase tracking-widest text-[rgba(28,31,58,0.5)] font-bold pt-1">Note:</span>
+                            <span className="flex-1 text-[#1c1f3a] italic">"{m.misconception}"</span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="absolute -left-[9px] top-0 text-[10px] bg-[#fdfcf9] px-1 text-[rgba(28,31,58,0.3)] group-hover/mistake:text-[#1c1f3a] transition-colors">■</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
-          </div>
-        ))
-      }
+        </div>
+      </div>
     </div>
   )
 }

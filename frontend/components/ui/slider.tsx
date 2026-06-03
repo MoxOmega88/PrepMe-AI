@@ -26,9 +26,15 @@ const Slider = React.forwardRef<
         />
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
-        className="block h-7 w-4 rounded-sm border-[1.5px] bg-[#1A1A2E] transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-110 active:scale-95 cursor-grab active:cursor-grabbing z-10"
-        style={{ borderColor: color, ["--tw-ring-color" as string]: color }}
-      />
+        className="flex items-center justify-center h-8 w-6 rounded-none border-[3px] border-[#1c1f3a] bg-[#fdfcf9] shadow-[2px_2px_0_#1c1f3a] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 hover:scale-110 active:scale-95 cursor-grab active:cursor-grabbing z-10"
+        style={{ ["--tw-ring-color" as string]: color }}
+      >
+        <div className="flex flex-col gap-0.5 opacity-50">
+          <div className="w-2 h-0.5 bg-[#1c1f3a]" />
+          <div className="w-2 h-0.5 bg-[#1c1f3a]" />
+          <div className="w-2 h-0.5 bg-[#1c1f3a]" />
+        </div>
+      </SliderPrimitive.Thumb>
     </SliderPrimitive.Root>
   )
 })

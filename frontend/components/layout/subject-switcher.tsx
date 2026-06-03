@@ -21,30 +21,28 @@ export function SubjectSwitcher() {
 
   return (
     <div
-      className="w-full flex items-center gap-4"
-      style={{ background: "#ddd7cc", padding: "12px 32px", borderBottom: "2px solid rgba(28,31,58,0.15)" }}
+      className="w-full flex items-center px-8 mt-6 mb-2"
     >
-      <span className="font-mono text-[9px] font-black uppercase tracking-widest text-[#555570] flex-shrink-0">
-        ■ SUBJECT
-      </span>
-      <div className="flex gap-3 items-center">
+      <div className="flex gap-2 items-end border-b-2 border-[#1c1f3a] w-full pl-4">
         <button
           onClick={() => switchSubject("science")}
           disabled={switching}
           className={profile?.subject === "science"
-            ? "px-4 py-1.5 font-mono text-[11px] font-black uppercase tracking-widest bg-[#4A6FA5] text-white"
-            : "px-4 py-1.5 font-mono text-[11px] font-black uppercase tracking-widest text-[rgba(28,31,58,0.55)] hover:bg-[rgba(28,31,58,0.06)]"}
+            ? "px-6 py-2.5 font-mono text-xs font-black uppercase tracking-widest bg-[#fcfaf8] text-[#1c1f3a] border-2 border-[#1c1f3a] border-b-0 rounded-t-xl relative z-10 translate-y-[2px]"
+            : "px-6 py-2 font-mono text-xs font-bold uppercase tracking-widest bg-[#e6dfd4] text-[#666680] border-2 border-[rgba(28,31,58,0.15)] border-b-0 rounded-t-xl hover:bg-[#eee9e0] hover:text-[#1c1f3a] transition-colors"}
+          style={profile?.subject === "science" ? { boxShadow: "inset 0 4px 0px rgba(74,111,165,0.4)" } : {}}
         >
-          • Science
+          SCIENCE
         </button>
         <button
           onClick={() => switchSubject("maths")}
           disabled={switching}
           className={profile?.subject === "maths"
-            ? "px-4 py-1.5 font-mono text-[11px] font-black uppercase tracking-widest bg-[#4A6FA5] text-white"
-            : "px-4 py-1.5 font-mono text-[11px] font-black uppercase tracking-widest text-[rgba(28,31,58,0.55)] hover:bg-[rgba(28,31,58,0.06)]"}
+            ? "px-6 py-2.5 font-mono text-xs font-black uppercase tracking-widest bg-[#fcfaf8] text-[#1c1f3a] border-2 border-[#1c1f3a] border-b-0 rounded-t-xl relative z-10 translate-y-[2px]"
+            : "px-6 py-2 font-mono text-xs font-bold uppercase tracking-widest bg-[#e6dfd4] text-[#666680] border-2 border-[rgba(28,31,58,0.15)] border-b-0 rounded-t-xl hover:bg-[#eee9e0] hover:text-[#1c1f3a] transition-colors"}
+          style={profile?.subject === "maths" ? { boxShadow: "inset 0 4px 0px rgba(74,111,165,0.4)" } : {}}
         >
-          Maths
+          MATHS
         </button>
       </div>
     </div>

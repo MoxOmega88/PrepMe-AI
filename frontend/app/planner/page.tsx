@@ -27,12 +27,12 @@ interface StudyNow {
 }
 
 // ── Chip colors ────────────────────────────────────────────────────────────────
-const CHIP: Record<string, { bg: string; border: string; label: string; dot: string }> = {
-  study:    { bg: "bg-blue-950",   border: "border-blue-700",  label: "STUDY",    dot: "bg-blue-500" },
-  practice: { bg: "bg-purple-950", border: "border-purple-700",label: "PRACTICE", dot: "bg-purple-400" },
-  revision: { bg: "bg-amber-950",  border: "border-amber-700", label: "REVISION", dot: "bg-amber-500" },
-  mock:     { bg: "bg-green-950",  border: "border-green-700", label: "MOCK",     dot: "bg-green-500" },
-  break:    { bg: "bg-gray-900",   border: "border-gray-700",  label: "BREAK",    dot: "bg-gray-400" },
+const CHIP: Record<string, { bg: string; border: string; label: string; dot: string; rotate: string }> = {
+  study:    { bg: "bg-[#facc15]", border: "border-[#1c1f3a]", label: "STUDY",    dot: "bg-[#1c1f3a]", rotate: "rotate-[-1deg]" },
+  practice: { bg: "bg-[#ec4899]", border: "border-[#1c1f3a]", label: "PRACTICE", dot: "bg-[#1c1f3a]", rotate: "rotate-[2deg]" },
+  revision: { bg: "bg-[#f97316]", border: "border-[#1c1f3a]", label: "REVISION", dot: "bg-[#1c1f3a]", rotate: "rotate-[-3deg]" },
+  mock:     { bg: "bg-[#4ade80]", border: "border-[#1c1f3a]", label: "MOCK",     dot: "bg-[#1c1f3a]", rotate: "rotate-[1deg]" },
+  break:    { bg: "bg-[#e5e7eb]", border: "border-[#1c1f3a]", label: "BREAK",    dot: "bg-[#1c1f3a]", rotate: "rotate-[0deg]" },
 }
 
 // ── Week helpers ───────────────────────────────────────────────────────────────
@@ -54,18 +54,26 @@ function SessionChip({ s, onClick }: { s: PlanSession; onClick: () => void }) {
   return (
     <button onClick={onClick}
       className={cn(
-        "w-full text-left px-1.5 py-1 border text-[9px] font-bold font-mono uppercase tracking-wider mb-1 transition-all",
-        c.bg, c.border,
-        s.completed ? "opacity-40 line-through" : "hover:opacity-80"
+        "sticky-note w-full text-left p-2 text-[10px] font-bold font-mono uppercase tracking-wider mb-3",
+        c.bg, c.border, c.rotate,
+        s.completed ? "opacity-60 grayscale-[0.3]" : ""
       )}>
-      <div className="flex items-center gap-1 mb-0.5">
-        <span className={cn("w-1.5 h-1.5 flex-shrink-0", c.dot)} />
-        <span>{c.label}</span>
+      <div className="flex items-center gap-1.5 mb-1 border-b border-[#1c1f3a]/20 pb-1">
+        <span className={cn("w-2 h-2 flex-shrink-0 border border-[#1c1f3a] rounded-full", c.dot)} />
+        <span className="text-[#1c1f3a]">{c.label}</span>
       </div>
-      <p className="truncate text-[#1c1f3a] normal-case font-normal" style={{ fontSize: "9px" }}>
+      <p className="truncate text-[#1c1f3a] normal-case font-serif font-bold text-sm leading-tight mt-1" style={{ whiteSpace: "normal", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {s.topic.split(":")[0].trim()}
       </p>
-      <span className="text-[#666680]">{s.duration_minutes}m</span>
+      <div className="flex justify-between items-center mt-2 pt-1 border-t border-[#1c1f3a]/20">
+        <span className="text-[#1c1f3a]/70 font-mono font-bold text-[9px]"><Clock className="w-2.5 h-2.5 inline mr-1 -mt-0.5"/>{s.duration_minutes}m</span>
+      </div>
+      {s.completed && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+          <div className="w-full h-1 bg-[#1c1f3a] transform -rotate-12 absolute" />
+          <div className="w-full h-1 bg-[#1c1f3a] transform rotate-12 absolute" />
+        </div>
+      )}
     </button>
   )
 }
@@ -88,61 +96,64 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
   }) : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
-      <div className="w-[380px] bg-[rgba(255,255,255,0.92)] border-l border-[rgba(28,31,58,0.14)] h-full overflow-y-auto shadow-2xl transition-all"
-        style={{ width: "380px" }}
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black/60 p-4" onClick={onClose}>
+      <div className="w-[420px] max-w-full index-card animate-slide-up"
         onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(28,31,58,0.10)]">
-          <div className="flex items-center gap-2">
-            <span className={cn("w-2.5 h-2.5", c.dot)} />
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[rgba(28,31,58,0.40)]">{c.label}</span>
-          </div>
-          <button onClick={onClose} className="text-[rgba(28,31,58,0.40)] hover:text-[#1c1f3a] font-mono text-sm">✕</button>
+        {/* Header Tab */}
+        <div className="absolute -top-10 left-4 bg-[#fdfcf9] border-t border-l border-r border-[#1c1f3a] px-6 py-2 rounded-t-lg z-[-1] flex items-center gap-2">
+          <span className={cn("w-3 h-3 border border-[#1c1f3a]", c.bg)} />
+          <span className="font-mono text-[10px] font-black uppercase tracking-widest text-[#1c1f3a]">{c.label}</span>
         </div>
 
-        <div className="px-5 py-5 space-y-5">
-          <div>
-            <p className="font-serif font-black text-xl text-[#1c1f3a] leading-tight">{session.topic}</p>
-            <p className="font-mono text-[10px] text-[#666680] mt-1 uppercase tracking-wider">
-              {new Date(session.date).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}
-              &nbsp;·&nbsp;{session.duration_minutes}min
-            </p>
+        <div className="p-8 space-y-6">
+          <div className="flex justify-between items-start border-b-2 border-dashed border-[#1c1f3a] pb-4">
+            <div>
+              <p className="font-serif font-black text-2xl text-[#1c1f3a] leading-tight">{session.topic}</p>
+              <p className="font-mono text-xs text-[rgba(28,31,58,0.6)] mt-2 uppercase tracking-wider font-bold">
+                {new Date(session.date).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}
+                &nbsp;·&nbsp;{session.duration_minutes}min
+              </p>
+            </div>
+            <button onClick={onClose} className="text-[#1c1f3a] font-mono text-xl font-black hover:text-[#c0392b]">&times;</button>
           </div>
 
           {/* Mastery bar */}
           <div>
-            <p className="section-label mb-1.5">Mastery at scheduling</p>
-            <div className="neo-progress">
-              <div className="neo-progress-fill" style={{
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-2">Mastery at scheduling</p>
+            <div className="h-3 w-full border-2 border-[#1c1f3a] bg-transparent overflow-hidden">
+              <div className="h-full bg-repeating-stripes" style={{
                 width: `${session.mastery_at_schedule_time * 100}%`,
-                backgroundColor: session.mastery_at_schedule_time < 0.5 ? "#4A6FA5"
-                  : session.mastery_at_schedule_time < 0.7 ? "#c47c2b" : "#2a7d4f"
+                backgroundColor: session.mastery_at_schedule_time < 0.5 ? "#1c1f3a" : session.mastery_at_schedule_time < 0.7 ? "#c47c2b" : "#2a7d4f"
               }} />
             </div>
-            <p className="font-mono text-[10px] text-[#666680] mt-1">
+            <p className="font-mono text-[10px] text-[rgba(28,31,58,0.6)] font-bold mt-1 text-right">
               {(session.mastery_at_schedule_time * 100).toFixed(0)}%
             </p>
           </div>
 
           {/* Micro-goals */}
           <div>
-            <p className="section-label mb-2">Micro-goals</p>
-            <div className="space-y-2">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#1c1f3a] mb-4">Task Checklist</p>
+            <div className="space-y-4">
               {goals.length === 0 ? (
-                <p className="text-xs text-[#666680] font-mono">No micro-goals for this session</p>
+                <p className="text-xs text-[rgba(28,31,58,0.6)] font-mono italic">No tasks listed.</p>
               ) : (
                 goals.map((g, i) => (
-                  <label key={i} className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={g.done}
-                      onChange={(e) => onToggleGoal(session.id, i, e.target.checked)}
-                      className="mt-0.5 flex-shrink-0 accent-[#4A6FA5] h-4 w-4 border border-[rgba(28,31,58,0.14)] rounded-none focus:ring-0 cursor-pointer"
-                    />
+                  <label key={i} className="flex items-start gap-4 cursor-pointer select-none group/goal relative">
+                    <div className="relative mt-1">
+                      <input
+                        type="checkbox"
+                        checked={g.done}
+                        onChange={(e) => onToggleGoal(session.id, i, e.target.checked)}
+                        className="opacity-0 absolute inset-0 cursor-pointer"
+                      />
+                      <div className="w-5 h-5 border-2 border-[#1c1f3a] bg-transparent flex items-center justify-center transition-colors group-hover/goal:bg-[rgba(28,31,58,0.05)]">
+                        {g.done && <span className="text-[#c0392b] red-pen text-xl absolute -top-2 -left-1">X</span>}
+                      </div>
+                    </div>
                     <span className={cn(
-                      "text-xs text-[#1c1f3a] font-mono leading-relaxed transition-all",
-                      g.done && "line-through opacity-50"
+                      "text-sm text-[#1c1f3a] font-serif transition-all font-bold",
+                      g.done && "opacity-50 line-through decoration-2 decoration-[#c0392b]"
                     )}>
                       {g.text}
                     </span>
@@ -153,16 +164,16 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
           </div>
 
           {/* Actions */}
-          <div className="space-y-2.5 pt-2">
+          <div className="pt-6 border-t-2 border-dashed border-[#1c1f3a] flex gap-3 flex-wrap">
             <button
               onClick={() => router.push(`/quiz?topic=${encodeURIComponent(session.topic)}`)}
-              className="brut-btn brut-btn-pink w-full py-2.5 text-xs font-bold font-mono">
-              Take Quiz →
+              className="flex-1 font-mono font-black text-xs text-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[2px_2px_0_rgba(28,31,58,0.15)]">
+              Quiz &rarr;
             </button>
             <button
               onClick={() => router.push(`/tutor?topic=${encodeURIComponent(session.topic)}`)}
-              className="brut-btn brut-btn-outline w-full py-2.5 text-xs font-bold font-mono">
-              Open in AI Tutor →
+              className="flex-1 font-mono font-black text-xs text-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-3 uppercase tracking-widest hover:bg-[rgba(28,31,58,0.05)] transition-colors rounded-none shadow-[2px_2px_0_rgba(28,31,58,0.15)]">
+              Tutor &rarr;
             </button>
             {!session.completed && (
               <button
@@ -173,8 +184,8 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
                   setCompleting(false)
                   onClose()
                 }}
-                className="brut-btn brut-btn-outline w-full py-2.5 text-xs font-bold font-mono">
-                {completing ? "Saving…" : "Mark Complete ✓"}
+                className="w-full font-mono font-black text-sm text-[#fdfcf9] bg-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-4 uppercase tracking-widest hover:bg-[#c0392b] hover:border-[#c0392b] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)] mt-2">
+                {completing ? "Saving..." : "STAMP COMPLETED"}
               </button>
             )}
           </div>
@@ -189,32 +200,37 @@ function StudyNowModal({ data, onClose }: { data: StudyNow; onClose: () => void 
   const router = useRouter()
   const c = CHIP[data.session_type] ?? CHIP.study
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-[rgba(255,255,255,0.92)] border border-[rgba(28,31,58,0.14)] w-full max-w-md mx-4 p-6 space-y-4"
-        style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }} onClick={e => e.stopPropagation()}>
-        <div>
-          <p className="section-label pink mb-1">Study this now</p>
-          <p className="font-serif font-black text-2xl text-[#1c1f3a] leading-tight">{data.topic}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={cn("text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 border", c.bg, c.border)}>
-              {c.label}
-            </span>
-            <span className="font-mono text-[10px] text-[#666680]">{data.duration_minutes}min</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div className="w-[420px] max-w-full index-card animate-slide-up relative"
+        onClick={e => e.stopPropagation()}>
+        
+        {/* Header Tab */}
+        <div className="absolute -top-10 left-4 bg-[#fdfcf9] border-t border-l border-r border-[#1c1f3a] px-6 py-2 rounded-t-lg z-[-1] flex items-center gap-2">
+          <span className={cn("w-3 h-3 border border-[#1c1f3a]", c.bg)} />
+          <span className="font-mono text-[10px] font-black uppercase tracking-widest text-[#1c1f3a]">{c.label}</span>
+        </div>
+
+        <div className="p-8 space-y-6">
+          <div className="border-b-2 border-dashed border-[#1c1f3a] pb-4 relative">
+            <button onClick={onClose} className="absolute top-0 right-0 text-[#1c1f3a] font-mono text-xl font-black hover:text-[#c0392b]">&times;</button>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#c0392b] mb-1">Up Next</p>
+            <p className="font-serif font-black text-2xl text-[#1c1f3a] leading-tight pr-6">{data.topic}</p>
+            <p className="font-mono text-xs text-[rgba(28,31,58,0.6)] mt-2 uppercase tracking-wider font-bold">
+              Duration: {data.duration_minutes}min
+            </p>
+          </div>
+          
+          <div className="pt-2 flex gap-3 flex-wrap">
+            <button onClick={() => router.push(`/quiz?topic=${encodeURIComponent(data.topic)}`)}
+              className="flex-1 font-mono font-black text-xs text-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[2px_2px_0_rgba(28,31,58,0.15)]">
+              Start Quiz &rarr;
+            </button>
+            <button onClick={() => { onClose(); router.push("/planner") }}
+              className="flex-1 font-mono font-black text-xs text-[#1c1f3a] border-2 border-[#1c1f3a] px-4 py-3 uppercase tracking-widest hover:bg-[rgba(28,31,58,0.05)] transition-colors rounded-none shadow-[2px_2px_0_rgba(28,31,58,0.15)]">
+              Open Planner
+            </button>
           </div>
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => router.push(`/quiz?topic=${encodeURIComponent(data.topic)}`)}
-            className="brut-btn brut-btn-pink flex-1 py-2.5 text-xs">
-            Start Quiz →
-          </button>
-          <button onClick={() => { onClose(); router.push("/planner") }}
-            className="brut-btn brut-btn-outline flex-1 py-2.5 text-xs">
-            Open in Planner
-          </button>
-        </div>
-        <button onClick={onClose} className="text-[10px] text-[#666680] font-mono w-full text-center hover:text-[#1c1f3a]">
-          dismiss
-        </button>
       </div>
     </div>
   )
@@ -395,9 +411,10 @@ export default function PlannerPage() {
 
         {/* Burnout warning */}
         {burnoutWarning && (
-          <div className="border border-[#c47c2b] bg-[#c47c2b]/5 px-5 py-3">
-            <p className="font-mono text-xs text-[#D4880A] font-bold flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4" /> Heavy study week detected. A break day has been added automatically.
+          <div className="urgent-memo px-5 py-4 pl-10 animate-slide-up">
+            <p className="font-serif text-lg font-black text-[#c0392b] mb-1 leading-none">URGENT MEMO:</p>
+            <p className="font-mono text-sm text-[#1c1f3a] font-bold">
+              Heavy study week detected. A break day has been added automatically. Avoid fatigue.
             </p>
           </div>
         )}
@@ -423,20 +440,21 @@ export default function PlannerPage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-4">
           {[
             { label: "This week", value: weekSessions.length, unit: "sessions", small: false },
             { label: "Completed today", value: completedToday, unit: "", small: false },
             { label: "Hours planned", value: hoursPlanned.toFixed(1), unit: "hrs", small: false },
             { label: "Weakest topic", value: weakest ?? "—", unit: "", small: true },
           ].map((s, i) => (
-            <div key={s.label} className="neo-card neo-card-white px-4 py-3" style={{ animationDelay: `${0.1 * i}s` }}>
-              <p className="font-mono text-[9px] text-[#666680] uppercase tracking-widest mb-1">{s.label}</p>
+            <div key={s.label} className="library-card px-4 py-3 pb-8 relative" style={{ animationDelay: `${0.1 * i}s` }}>
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[radial-gradient(circle_at_30%_30%,#e5e7eb,#9ca3af)] rounded-full shadow-[1px_2px_2px_rgba(0,0,0,0.3)] z-10" />
+              <p className="font-mono text-[9px] text-[#1c1f3a]/60 uppercase tracking-widest mb-2 mt-2 border-b border-[#1c1f3a]/20 pb-1 font-bold">{s.label}</p>
               {s.small ? (
-                <p className="font-mono text-xs font-bold text-[#1c1f3a] leading-snug break-words">{s.value}</p>
+                <p className="font-serif text-sm font-black text-[#c0392b] leading-snug break-words uppercase">{s.value}</p>
               ) : (
-                <p className="font-mono text-lg font-black text-[#1c1f3a] leading-none">
-                  {s.value}<span className="text-xs font-normal text-[#666680] ml-1">{s.unit}</span>
+                <p className="font-serif text-2xl font-black text-[#1c1f3a] leading-none">
+                  {s.value}<span className="font-mono text-xs font-normal text-[rgba(28,31,58,0.6)] ml-1">{s.unit}</span>
                 </p>
               )}
             </div>
@@ -462,10 +480,10 @@ export default function PlannerPage() {
         {burnoutWarnings
           .filter(w => !dismissedWarnings.includes(w.type))
           .map(w => {
-            let bg = "#E8E4DC"
-            if (w.type === "overstudy") bg = "#4A6FA5"
-            else if (w.type === "monotony") bg = "#FFD600"
-            else if (w.type === "fatigue") bg = "#FF8C00"
+            let bg = "#fcfaf8"
+            if (w.type === "overstudy") bg = "#e8f0fe"
+            else if (w.type === "monotony") bg = "#fff4d4"
+            else if (w.type === "fatigue") bg = "#ffe8d6"
 
             return (
               <div
@@ -509,28 +527,29 @@ export default function PlannerPage() {
 
         {/* Calendar grid */}
         {loading ? (
-          <p className="font-mono text-xs text-[#666680]">Loading plan…</p>
+          <p className="font-mono text-xs text-[#666680]">Loading plan...</p>
         ) : error ? (
-          <div className="border border-[#4A6FA5] bg-[#4A6FA5]/5 px-4 py-3">
-            <p className="font-mono text-xs text-[#4A6FA5]">{error}</p>
-            <button onClick={fetchPlan} className="font-mono text-[10px] text-[#4A6FA5] underline mt-1">Retry</button>
+          <div className="urgent-memo px-4 py-3 pl-10">
+            <p className="font-serif text-lg font-black text-[#c0392b]">{error}</p>
+            <button onClick={fetchPlan} className="font-mono text-[10px] text-[#1c1f3a] font-bold underline mt-1">Retry</button>
           </div>
         ) : (
-          <div className="border border-[rgba(28,31,58,0.10)] bg-[rgba(16,16,32,0.85)] overflow-hidden" style={{ animationDelay: "0.4s" }}>
+          <div className="desk-planner" style={{ animationDelay: "0.4s" }}>
             {/* Day headers */}
-            <div className="grid grid-cols-7 border-b border-[rgba(28,31,58,0.10)]">
-              {weekDays.map(d => {
+            <div className="grid grid-cols-7 border-b-2 border-[#1c1f3a] bg-[#1c1f3a] text-[#fdfcf9]">
+              {weekDays.map((d, index) => {
                 const isToday = isoDate(d) === isoDate(new Date())
                 return (
                   <div key={isoDate(d)}
                     className={cn(
-                      "px-2 py-2 border-r border-[rgba(28,31,58,0.10)] last:border-r-0 text-center",
-                      isToday ? "bg-[#4A6FA5]/5" : ""
+                      "px-2 py-3 border-r-2 border-[#1c1f3a] last:border-r-0 text-center relative",
+                      isToday ? "bg-[#c0392b]" : "",
+                      index === 0 ? "pl-8" : "" // Extra padding for left spine
                     )}>
-                    <p className="font-mono text-[9px] text-[#666680] uppercase tracking-wider">
+                    <p className="font-mono text-[10px] text-[rgba(253,252,249,0.7)] uppercase tracking-wider font-bold">
                       {d.toLocaleDateString("en-IN", { weekday: "short" })}
                     </p>
-                    <p className={cn("font-mono text-sm font-black", isToday ? "text-[#4A6FA5]" : "text-[#1c1f3a]")}>
+                    <p className={cn("font-serif text-2xl font-black mt-1", isToday ? "text-[#fdfcf9]" : "text-[#fdfcf9]")}>
                       {d.getDate()}
                     </p>
                   </div>
@@ -539,15 +558,19 @@ export default function PlannerPage() {
             </div>
 
             {/* Session chips */}
-            <div className="grid grid-cols-7 min-h-[200px]">
-              {weekDays.map(d => {
+            <div className="grid grid-cols-7 min-h-[300px]">
+              {weekDays.map((d, index) => {
                 const key = isoDate(d)
                 const daySessions = byDate[key] ?? []
                 return (
                   <div key={key}
-                    className="border-r border-[rgba(28,31,58,0.10)] last:border-r-0 p-1.5 min-h-[200px] align-top">
+                    className={cn(
+                      "border-r-2 border-[#1c1f3a] last:border-r-0 p-2 min-h-[300px] align-top relative",
+                      index === 0 ? "pl-8" : "" // Extra padding after spine
+                    )}
+                    style={{ backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, rgba(28,31,58,0.1) 31px, rgba(28,31,58,0.1) 32px)', backgroundPositionY: '12px' }}>
                     {daySessions.length === 0 ? (
-                      <p className="font-mono text-[8px] text-[#DDD] text-center mt-4">—</p>
+                      <p className="font-mono text-[10px] text-[rgba(28,31,58,0.30)] text-center mt-6 italic font-bold">Free day</p>
                     ) : (
                       daySessions.map(s => (
                         <SessionChip key={s.id} s={s} onClick={() => setSelected(s)} />

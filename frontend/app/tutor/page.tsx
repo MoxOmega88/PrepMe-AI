@@ -385,8 +385,7 @@ export default function TutorPage() {
               flexShrink: 0,
             }}
           >
-            <div className="bg-white border border-[#1A1A1A] p-3 space-y-3 h-full overflow-y-auto"
-              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
+            <div className="manila-folder p-4 space-y-4 h-full overflow-y-auto">
 
               {/* Chapter info */}
               <div>
@@ -448,8 +447,8 @@ export default function TutorPage() {
 
           {/* CHAT AREA */}
           <div className="flex flex-col flex-1 min-w-0 min-h-0">
-            <div className="flex-1 overflow-y-auto bg-white border border-[#1A1A1A] p-4 space-y-4 mb-3"
-              style={{ boxShadow: "4px 4px 0 #1A1A1A" }}>
+            <div className="flex-1 overflow-y-auto graph-paper p-6 space-y-6 mb-3 rounded-sm border-2 border-[#1c1f3a]"
+              style={{ boxShadow: "4px 4px 0 #1c1f3a" }}>
 
               {messages.length === 0 && (
                 <div className="text-center mt-10">
@@ -482,30 +481,27 @@ export default function TutorPage() {
 
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className="max-w-[80%] space-y-2">
-                    <div className={`px-4 py-3 text-sm border relative ${
-                      m.role === "user"
-                        ? "bg-[#4A6FA5] text-white border-[#4A6FA5]"
-                        : "bg-white border-[#1A1A1A] text-[#1A1A1A]"
-                    }`} style={{
-                      boxShadow: m.role === "user" ? "3px 3px 0 #1A1A1A" : "3px 3px 0 #C0BAB0"
-                    }}>
-                      {m.role === "assistant" && (
-                        <div className="absolute top-2 right-2">
+                  <div className="max-w-[85%] space-y-3">
+                    {m.role === "user" ? (
+                      <div className="sticky-note p-4 text-sm font-serif" style={{ '--r': i % 2 === 0 ? '-1.5deg' : '2deg' } as React.CSSProperties}>
+                        <p className="whitespace-pre-wrap leading-relaxed text-[#1c1f3a]">{m.content}</p>
+                      </div>
+                    ) : (
+                      <div className="ai-flashcard text-sm">
+                        <div className="ai-flashcard-flap" />
+                        <div className="absolute top-2 right-2 z-20">
                           <CopyBtn text={m.content} />
                         </div>
-                      )}
-                      {m.role === "assistant" ? (
-                        <div className="pr-16"><RichText text={m.content} /></div>
-                      ) : (
-                        <p className="whitespace-pre-wrap font-mono text-xs leading-relaxed">{m.content}</p>
-                      )}
-                      {m.citations && m.citations.length > 0 && (
-                        <p className="text-[9px] mt-2 opacity-60 font-mono border-t border-[#E8E3D9] pt-1.5">
-                          ■ {m.citations.join(", ")}
-                        </p>
-                      )}
-                    </div>
+                        <div className="pr-8 relative z-10 text-[#1c1f3a] font-serif leading-relaxed">
+                          <RichText text={m.content} />
+                        </div>
+                        {m.citations && m.citations.length > 0 && (
+                          <p className="text-[9px] mt-3 opacity-60 font-mono border-t border-[rgba(28,31,58,0.1)] pt-2 relative z-10">
+                            ■ {m.citations.join(", ")}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     {m.role === "assistant" && (
                       <div className="space-y-2">
                         <div className="flex gap-2 flex-wrap">
@@ -533,20 +529,21 @@ export default function TutorPage() {
             </div>
 
             {/* Input */}
-            <div className="flex gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } }}
-                placeholder="Ask your tutor… (Enter to send, Shift+Enter for new line)"
-                className="flex-1 resize-none bg-white border border-[#1A1A1A] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#4A6FA5] transition-colors min-h-[44px] max-h-32 placeholder:text-[#C0BAB0]"
-                style={{ boxShadow: "2px 2px 0 #C0BAB0" }}
-                rows={1}
-              />
+            <div className="flex gap-3 mt-2">
+              <div className="label-tape flex-1 flex items-end">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } }}
+                  placeholder="Type a message..."
+                  className="w-full resize-none bg-transparent text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none min-h-[46px] max-h-32 placeholder:text-[rgba(28,31,58,0.4)]"
+                  rows={1}
+                />
+              </div>
               <button onClick={() => send()} disabled={busy || !input.trim()}
-                className="brut-btn brut-btn-pink px-4 h-11 disabled:opacity-40 disabled:cursor-not-allowed">
-                <Send className="h-4 w-4" />
+                className="brut-btn brut-btn-pink px-5 h-[46px] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center">
+                <Send className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -560,15 +557,13 @@ export default function TutorPage() {
               flexShrink: 0,
             }}
           >
-            <div className="bg-white border border-[#1A1A1A] p-3 space-y-2 h-full overflow-y-auto"
-              style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
-              <p className="text-[9px] font-mono font-bold uppercase tracking-wider"
-                style={{ color: "#4A6FA5" }}>■ Start with</p>
-              <div className="flex flex-col gap-2 pt-1">
+            <div className="p-2 space-y-3 h-full overflow-y-auto pt-6">
+              <p className="text-[9px] font-mono font-bold uppercase tracking-wider pl-2"
+                style={{ color: "#c47c2b" }}>■ Starter Questions</p>
+              <div className="flex flex-col gap-3 pt-1">
                 {prebuiltQuestions.map((q, i) => (
                   <button key={i} onClick={() => { setInput(q); setTimeout(() => send(q), 50) }}
-                    className="px-2.5 py-1.5 text-[10px] font-mono font-bold border border-[#1A1A1A] text-[#1A1A1A] bg-white text-left transition-all hover:bg-[#4A6FA5] hover:text-white hover:border-[#4A6FA5] cursor-pointer"
-                    style={{ boxShadow: "2px 2px 0 #1A1A1A" }}>
+                    className="tear-off-ticket text-left text-xs font-serif leading-snug text-[#1c1f3a]">
                     {q}
                   </button>
                 ))}
