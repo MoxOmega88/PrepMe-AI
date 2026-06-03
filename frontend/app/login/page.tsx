@@ -24,7 +24,7 @@ export default function LoginPage() {
     finally { setBusy(false) }
   }
 
-  const inputCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#FF4D6D] transition-colors placeholder:text-[#BBB]"
+  const inputCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#4A6FA5] transition-colors placeholder:text-[#BBB]"
 
   return (
     <div className="min-h-screen bg-[#E8E3D9] flex items-center justify-center p-4"
@@ -37,7 +37,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="mb-8 animate-slide-right">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[#FF4D6D] font-mono font-black animate-[slide-right_0.5s_ease-out_0.1s_both]">■</span>
+            <span className="text-[#4A6FA5] font-mono font-black animate-[slide-right_0.5s_ease-out_0.1s_both]">■</span>
             <span className="font-serif font-black text-[#1A1A1A] text-2xl animate-[slide-right_0.5s_ease-out_0.2s_both]">PrepMeAI</span>
           </div>
           <p className="text-[#AAA] text-xs font-mono uppercase tracking-widest animate-[slide-right_0.5s_ease-out_0.3s_both]">AI Study Companion</p>
@@ -47,9 +47,9 @@ export default function LoginPage() {
         <div className="border-2 border-[#1A1A1A] bg-[#FFFFFF]" style={{ boxShadow: "6px 6px 0 #1A1A1A", animationDelay: "0.3s" }}>
           {/* Window title bar */}
           <div className="flex items-center gap-1.5 px-3 py-2 border-b border-[#C0BAB0] bg-[#F2EDE5]">
-            <span className="w-2.5 h-2.5 bg-[#FF4D6D] block" />
-            <span className="w-2.5 h-2.5 bg-[#F5A623] block" />
-            <span className="w-2.5 h-2.5 bg-[#39FF6A] block" />
+            <span className="w-2.5 h-2.5 bg-[#4A6FA5] block" />
+            <span className="w-2.5 h-2.5 bg-[#c47c2b] block" />
+            <span className="w-2.5 h-2.5 bg-[#2a7d4f] block" />
             <span className="text-[#AAA] text-[10px] font-mono ml-2 uppercase tracking-wider">auth.exe</span>
           </div>
 
@@ -57,11 +57,11 @@ export default function LoginPage() {
             <Tabs defaultValue="signin">
               <TabsList className="w-full mb-5 bg-[#F2EDE5] border border-[#C0BAB0] rounded-none p-0 h-auto">
                 <TabsTrigger value="signin"
-                  className="flex-1 rounded-none py-2 text-xs font-bold uppercase tracking-wider data-[state=active]:bg-[#FF4D6D] data-[state=active]:text-white data-[state=inactive]:text-[#999]">
+                  className="flex-1 rounded-none py-2 text-xs font-bold uppercase tracking-wider data-[state=active]:bg-[#4A6FA5] data-[state=active]:text-white data-[state=inactive]:text-[#999]">
                   Sign In
                 </TabsTrigger>
                 <TabsTrigger value="signup"
-                  className="flex-1 rounded-none py-2 text-xs font-bold uppercase tracking-wider data-[state=active]:bg-[#FF4D6D] data-[state=active]:text-white data-[state=inactive]:text-[#999]">
+                  className="flex-1 rounded-none py-2 text-xs font-bold uppercase tracking-wider data-[state=active]:bg-[#4A6FA5] data-[state=active]:text-white data-[state=inactive]:text-[#999]">
                   Sign Up
                 </TabsTrigger>
               </TabsList>
@@ -76,7 +76,7 @@ export default function LoginPage() {
                     <label className="section-label pink mb-1.5 block">Password</label>
                     <input className={inputCls} type="password" value={siPass} onChange={e => setSiPass(e.target.value)} required placeholder="••••••••" />
                   </div>
-                  {error && <p className="text-[#FF4D6D] text-xs font-mono">{error}</p>}
+                  {error && <p className="text-[#4A6FA5] text-xs font-mono">{error}</p>}
                   <button type="submit" disabled={busy} className="brut-btn brut-btn-pink w-full py-2.5 mt-1">
                     {busy ? "Signing in…" : "Sign In →"}
                   </button>
@@ -97,7 +97,7 @@ export default function LoginPage() {
                     <label className="section-label green mb-1.5 block">Password</label>
                     <input className={inputCls} type="password" value={suPass} onChange={e => setSuPass(e.target.value)} required placeholder="••••••••" minLength={6} />
                   </div>
-                  {error && <p className="text-[#FF4D6D] text-xs font-mono">{error}</p>}
+                  {error && <p className="text-[#4A6FA5] text-xs font-mono">{error}</p>}
                   <button type="submit" disabled={busy} className="brut-btn brut-btn-green w-full py-2.5 mt-1">
                     {busy ? "Creating…" : "Create Account →"}
                   </button>

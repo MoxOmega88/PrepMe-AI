@@ -232,7 +232,7 @@ function CopyBtn({ text }: { text: string }) {
 function Chip({ label, onClick, pink }: { label: string; onClick: () => void; pink?: boolean }) {
   return (
     <button onClick={onClick}
-      className="px-2.5 py-1 text-[10px] font-mono font-bold border border-[#1A1A1A] text-[#1A1A1A] bg-white transition-all hover:bg-[#FF4D6D] hover:text-white hover:border-[#FF4D6D] cursor-pointer"
+      className="px-2.5 py-1 text-[10px] font-mono font-bold border border-[#1A1A1A] text-[#1A1A1A] bg-white transition-all hover:bg-[#4A6FA5] hover:text-white hover:border-[#4A6FA5] cursor-pointer"
       style={{ boxShadow: "2px 2px 0 #1A1A1A" }}>
       {label}
     </button>
@@ -346,7 +346,7 @@ export default function TutorPage() {
         {/* Topic selector */}
         <div className="flex items-center gap-3 mb-3 flex-wrap">
           <select value={topic} onChange={e => handleTopicChange(e.target.value)}
-            className="bg-white border border-[#1A1A1A] text-[#1A1A1A] px-3 py-2 text-xs font-mono outline-none focus:border-[#FF4D6D] transition-colors"
+            className="bg-white border border-[#1A1A1A] text-[#1A1A1A] px-3 py-2 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors"
             style={{ boxShadow: "2px 2px 0 #1A1A1A" }}>
             <option value="— General —">— General —</option>
             {topics.map(t => <option key={t} value={t}>{t}</option>)}
@@ -357,17 +357,17 @@ export default function TutorPage() {
               <div className="w-20 h-1.5 bg-[#E8E3D9] border border-[#C0BAB0] overflow-hidden">
                 <div className="h-full transition-all" style={{
                   width: `${masteryPct}%`,
-                  backgroundColor: masteryPct < 40 ? "#FF4D6D" : masteryPct < 70 ? "#F5A623" : "#39FF6A"
+                  backgroundColor: masteryPct < 40 ? "#4A6FA5" : masteryPct < 70 ? "#c47c2b" : "#2a7d4f"
                 }} />
               </div>
               <span className="font-mono text-[10px] font-bold" style={{
-                color: masteryPct < 40 ? "#FF4D6D" : masteryPct < 70 ? "#F5A623" : "#39FF6A"
+                color: masteryPct < 40 ? "#4A6FA5" : masteryPct < 70 ? "#c47c2b" : "#2a7d4f"
               }}>{masteryPct.toFixed(0)}%</span>
             </div>
           )}
           {messages.length > 0 && (
             <button onClick={() => { setMessages([]); setHistory([]) }}
-              className="text-[9px] font-mono text-[#999] hover:text-[#FF4D6D] uppercase tracking-wider transition-colors ml-auto">
+              className="text-[9px] font-mono text-[#999] hover:text-[#4A6FA5] uppercase tracking-wider transition-colors ml-auto">
               Clear chat
             </button>
           )}
@@ -402,7 +402,7 @@ export default function TutorPage() {
               <div>
                 <span className="inline-block px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider border border-[#1A1A1A]"
                   style={{
-                    background: subject === "science" ? "#FF4D6D" : "#4D79FF",
+                    background: subject === "science" ? "#4A6FA5" : "#4D79FF",
                     color: "#fff",
                     boxShadow: "2px 2px 0 #1A1A1A",
                   }}>
@@ -416,11 +416,11 @@ export default function TutorPage() {
                 <div className="w-full h-2 bg-[#E8E3D9] border border-[#C0BAB0] overflow-hidden mb-1">
                   <div className="h-full transition-all duration-500" style={{
                     width: `${masteryPct}%`,
-                    backgroundColor: masteryPct < 40 ? "#FF4D6D" : masteryPct < 70 ? "#F5A623" : "#39FF6A",
+                    backgroundColor: masteryPct < 40 ? "#4A6FA5" : masteryPct < 70 ? "#c47c2b" : "#2a7d4f",
                   }} />
                 </div>
                 <span className="font-mono text-[10px] font-bold" style={{
-                  color: masteryPct < 40 ? "#FF4D6D" : masteryPct < 70 ? "#F5A623" : "#39FF6A"
+                  color: masteryPct < 40 ? "#4A6FA5" : masteryPct < 70 ? "#c47c2b" : "#2a7d4f"
                 }}>{masteryPct.toFixed(0)}%</span>
               </div>
 
@@ -430,13 +430,13 @@ export default function TutorPage() {
                 {prerequisites === null ? (
                   <p className="text-[10px] font-mono text-[#C0BAB0]">Loading…</p>
                 ) : prerequisites.mastery_gap.length === 0 ? (
-                  <p className="text-[10px] font-mono font-bold" style={{ color: "#39FF6A" }}>✓ Prerequisites clear</p>
+                  <p className="text-[10px] font-mono font-bold" style={{ color: "#2a7d4f" }}>✓ Prerequisites clear</p>
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {prerequisites.mastery_gap.map((gap, i) => (
                       <span key={i}
-                        className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold border border-[#F5A623] text-[#F5A623] bg-white"
-                        style={{ boxShadow: "1px 1px 0 #F5A623" }}>
+                        className="inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold border border-[#c47c2b] text-[#c47c2b] bg-white"
+                        style={{ boxShadow: "1px 1px 0 #c47c2b" }}>
                         ⚠ {gap}
                       </span>
                     ))}
@@ -456,22 +456,22 @@ export default function TutorPage() {
                   <p className="section-label green justify-center mb-3">Try asking</p>
                   {subject === "maths" ? (
                     <>
-                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#FF4D6D] transition-colors"
+                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("How do I factorise quadratic expressions?")}>
                         "How do I factorise quadratic expressions?"
                       </p>
-                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#FF4D6D] transition-colors"
+                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("What is the area of a trapezium?")}>
                         "What is the area of a trapezium?"
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#FF4D6D] transition-colors"
+                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("How do mirrors form images?")}>
                         "How do mirrors form images?"
                       </p>
-                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#FF4D6D] transition-colors"
+                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("What causes winds and storms?")}>
                         "What causes winds and storms?"
                       </p>
@@ -485,7 +485,7 @@ export default function TutorPage() {
                   <div className="max-w-[80%] space-y-2">
                     <div className={`px-4 py-3 text-sm border relative ${
                       m.role === "user"
-                        ? "bg-[#FF4D6D] text-white border-[#FF4D6D]"
+                        ? "bg-[#4A6FA5] text-white border-[#4A6FA5]"
                         : "bg-white border-[#1A1A1A] text-[#1A1A1A]"
                     }`} style={{
                       boxShadow: m.role === "user" ? "3px 3px 0 #1A1A1A" : "3px 3px 0 #C0BAB0"
@@ -540,7 +540,7 @@ export default function TutorPage() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } }}
                 placeholder="Ask your tutor… (Enter to send, Shift+Enter for new line)"
-                className="flex-1 resize-none bg-white border border-[#1A1A1A] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#FF4D6D] transition-colors min-h-[44px] max-h-32 placeholder:text-[#C0BAB0]"
+                className="flex-1 resize-none bg-white border border-[#1A1A1A] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#4A6FA5] transition-colors min-h-[44px] max-h-32 placeholder:text-[#C0BAB0]"
                 style={{ boxShadow: "2px 2px 0 #C0BAB0" }}
                 rows={1}
               />
@@ -563,11 +563,11 @@ export default function TutorPage() {
             <div className="bg-white border border-[#1A1A1A] p-3 space-y-2 h-full overflow-y-auto"
               style={{ boxShadow: "3px 3px 0 #1A1A1A" }}>
               <p className="text-[9px] font-mono font-bold uppercase tracking-wider"
-                style={{ color: "#FF4D6D" }}>■ Start with</p>
+                style={{ color: "#4A6FA5" }}>■ Start with</p>
               <div className="flex flex-col gap-2 pt-1">
                 {prebuiltQuestions.map((q, i) => (
                   <button key={i} onClick={() => { setInput(q); setTimeout(() => send(q), 50) }}
-                    className="px-2.5 py-1.5 text-[10px] font-mono font-bold border border-[#1A1A1A] text-[#1A1A1A] bg-white text-left transition-all hover:bg-[#FF4D6D] hover:text-white hover:border-[#FF4D6D] cursor-pointer"
+                    className="px-2.5 py-1.5 text-[10px] font-mono font-bold border border-[#1A1A1A] text-[#1A1A1A] bg-white text-left transition-all hover:bg-[#4A6FA5] hover:text-white hover:border-[#4A6FA5] cursor-pointer"
                     style={{ boxShadow: "2px 2px 0 #1A1A1A" }}>
                     {q}
                   </button>

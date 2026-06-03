@@ -62,7 +62,7 @@ function SessionChip({ s, onClick }: { s: PlanSession; onClick: () => void }) {
         <span className={cn("w-1.5 h-1.5 flex-shrink-0", c.dot)} />
         <span>{c.label}</span>
       </div>
-      <p className="truncate text-[#E8E8F0] normal-case font-normal" style={{ fontSize: "9px" }}>
+      <p className="truncate text-[#1c1f3a] normal-case font-normal" style={{ fontSize: "9px" }}>
         {s.topic.split(":")[0].trim()}
       </p>
       <span className="text-[#666680]">{s.duration_minutes}m</span>
@@ -89,21 +89,21 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
-      <div className="w-[380px] bg-[#12121E] border-l border-[rgba(255,255,255,0.14)] h-full overflow-y-auto shadow-2xl transition-all"
+      <div className="w-[380px] bg-[rgba(255,255,255,0.92)] border-l border-[rgba(28,31,58,0.14)] h-full overflow-y-auto shadow-2xl transition-all"
         style={{ width: "380px" }}
         onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.10)]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(28,31,58,0.10)]">
           <div className="flex items-center gap-2">
             <span className={cn("w-2.5 h-2.5", c.dot)} />
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#777790]">{c.label}</span>
+            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[rgba(28,31,58,0.40)]">{c.label}</span>
           </div>
-          <button onClick={onClose} className="text-[#777790] hover:text-white font-mono text-sm">✕</button>
+          <button onClick={onClose} className="text-[rgba(28,31,58,0.40)] hover:text-[#1c1f3a] font-mono text-sm">✕</button>
         </div>
 
         <div className="px-5 py-5 space-y-5">
           <div>
-            <p className="font-serif font-black text-xl text-white leading-tight">{session.topic}</p>
+            <p className="font-serif font-black text-xl text-[#1c1f3a] leading-tight">{session.topic}</p>
             <p className="font-mono text-[10px] text-[#666680] mt-1 uppercase tracking-wider">
               {new Date(session.date).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" })}
               &nbsp;·&nbsp;{session.duration_minutes}min
@@ -116,8 +116,8 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
             <div className="neo-progress">
               <div className="neo-progress-fill" style={{
                 width: `${session.mastery_at_schedule_time * 100}%`,
-                backgroundColor: session.mastery_at_schedule_time < 0.5 ? "#FF4D6D"
-                  : session.mastery_at_schedule_time < 0.7 ? "#F5A623" : "#39FF6A"
+                backgroundColor: session.mastery_at_schedule_time < 0.5 ? "#4A6FA5"
+                  : session.mastery_at_schedule_time < 0.7 ? "#c47c2b" : "#2a7d4f"
               }} />
             </div>
             <p className="font-mono text-[10px] text-[#666680] mt-1">
@@ -138,10 +138,10 @@ function DetailPanel({ session, onClose, onComplete, onToggleGoal }: {
                       type="checkbox"
                       checked={g.done}
                       onChange={(e) => onToggleGoal(session.id, i, e.target.checked)}
-                      className="mt-0.5 flex-shrink-0 accent-[#FF4D6D] h-4 w-4 border border-[rgba(255,255,255,0.14)] rounded-none focus:ring-0 cursor-pointer"
+                      className="mt-0.5 flex-shrink-0 accent-[#4A6FA5] h-4 w-4 border border-[rgba(28,31,58,0.14)] rounded-none focus:ring-0 cursor-pointer"
                     />
                     <span className={cn(
-                      "text-xs text-[#E8E8F0] font-mono leading-relaxed transition-all",
+                      "text-xs text-[#1c1f3a] font-mono leading-relaxed transition-all",
                       g.done && "line-through opacity-50"
                     )}>
                       {g.text}
@@ -190,11 +190,11 @@ function StudyNowModal({ data, onClose }: { data: StudyNow; onClose: () => void 
   const c = CHIP[data.session_type] ?? CHIP.study
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-[#12121E] border border-[rgba(255,255,255,0.14)] w-full max-w-md mx-4 p-6 space-y-4"
+      <div className="bg-[rgba(255,255,255,0.92)] border border-[rgba(28,31,58,0.14)] w-full max-w-md mx-4 p-6 space-y-4"
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }} onClick={e => e.stopPropagation()}>
         <div>
           <p className="section-label pink mb-1">Study this now</p>
-          <p className="font-serif font-black text-2xl text-white leading-tight">{data.topic}</p>
+          <p className="font-serif font-black text-2xl text-[#1c1f3a] leading-tight">{data.topic}</p>
           <div className="flex items-center gap-2 mt-2">
             <span className={cn("text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 border", c.bg, c.border)}>
               {c.label}
@@ -212,7 +212,7 @@ function StudyNowModal({ data, onClose }: { data: StudyNow; onClose: () => void 
             Open in Planner
           </button>
         </div>
-        <button onClick={onClose} className="text-[10px] text-[#666680] font-mono w-full text-center hover:text-white">
+        <button onClick={onClose} className="text-[10px] text-[#666680] font-mono w-full text-center hover:text-[#1c1f3a]">
           dismiss
         </button>
       </div>
@@ -385,9 +385,9 @@ export default function PlannerPage() {
 
         {/* Exam countdown banner */}
         {plan?.exam_countdown && (
-          <div className="border-2 border-[#FF4D6D] bg-[#FF4D6D]/5 px-5 py-3 flex items-center gap-3">
-            <Flame className="w-6 h-6 text-[#FF4D6D]" />
-            <p className="font-mono text-xs font-bold text-[#FF4D6D] uppercase tracking-wider">
+          <div className="border-2 border-[#4A6FA5] bg-[#4A6FA5]/5 px-5 py-3 flex items-center gap-3">
+            <Flame className="w-6 h-6 text-[#4A6FA5]" />
+            <p className="font-mono text-xs font-bold text-[#4A6FA5] uppercase tracking-wider">
               EXAM IN {plan.days_remaining} DAYS — Revision mode active. Only revision and mock sessions scheduled.
             </p>
           </div>
@@ -395,7 +395,7 @@ export default function PlannerPage() {
 
         {/* Burnout warning */}
         {burnoutWarning && (
-          <div className="border border-[#F5A623] bg-[#F5A623]/5 px-5 py-3">
+          <div className="border border-[#c47c2b] bg-[#c47c2b]/5 px-5 py-3">
             <p className="font-mono text-xs text-[#D4880A] font-bold flex items-center gap-1.5">
               <AlertTriangle className="w-4 h-4" /> Heavy study week detected. A break day has been added automatically.
             </p>
@@ -408,7 +408,7 @@ export default function PlannerPage() {
             <p className="section-label pink mb-1.5 animate-[slide-right_0.5s_ease-out_0.1s_both] flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" /> Schedule
             </p>
-            <h1 className="font-serif font-black text-[2.2rem] text-white leading-none animate-[slide-right_0.5s_ease-out_0.2s_both]">Study Planner</h1>
+            <h1 className="font-serif font-black text-[2.2rem] text-[#1c1f3a] leading-none animate-[slide-right_0.5s_ease-out_0.2s_both]">Study Planner</h1>
           </div>
           <div className="flex gap-2">
             <button onClick={handleStudyNow}
@@ -433,9 +433,9 @@ export default function PlannerPage() {
             <div key={s.label} className="neo-card neo-card-white px-4 py-3" style={{ animationDelay: `${0.1 * i}s` }}>
               <p className="font-mono text-[9px] text-[#666680] uppercase tracking-widest mb-1">{s.label}</p>
               {s.small ? (
-                <p className="font-mono text-xs font-bold text-white leading-snug break-words">{s.value}</p>
+                <p className="font-mono text-xs font-bold text-[#1c1f3a] leading-snug break-words">{s.value}</p>
               ) : (
-                <p className="font-mono text-lg font-black text-white leading-none">
+                <p className="font-mono text-lg font-black text-[#1c1f3a] leading-none">
                   {s.value}<span className="text-xs font-normal text-[#666680] ml-1">{s.unit}</span>
                 </p>
               )}
@@ -450,8 +450,8 @@ export default function PlannerPage() {
               className={cn(
                 "px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider font-mono border transition-colors",
                 filter === f
-                  ? "bg-[#FF4D6D] text-white border-[#FF4D6D]"
-                  : "border-[rgba(255,255,255,0.10)] text-[#777790] hover:border-[rgba(255,255,255,0.30)] hover:text-white"
+                  ? "bg-[#4A6FA5] text-white border-[#4A6FA5]"
+                  : "border-[rgba(28,31,58,0.10)] text-[rgba(28,31,58,0.40)] hover:border-[rgba(28,31,58,0.30)] hover:text-[#1c1f3a]"
               )}>
               {f}
             </button>
@@ -463,14 +463,14 @@ export default function PlannerPage() {
           .filter(w => !dismissedWarnings.includes(w.type))
           .map(w => {
             let bg = "#E8E4DC"
-            if (w.type === "overstudy") bg = "#FF4D6D"
+            if (w.type === "overstudy") bg = "#4A6FA5"
             else if (w.type === "monotony") bg = "#FFD600"
             else if (w.type === "fatigue") bg = "#FF8C00"
 
             return (
               <div
                 key={w.type}
-                className="border border-[rgba(255,255,255,0.14)] p-4 flex justify-between items-start transition-all"
+                className="border border-[rgba(28,31,58,0.14)] p-4 flex justify-between items-start transition-all"
                 style={{ backgroundColor: bg, borderRadius: 0, color: "#1A1A1A" }}
               >
                 <div className="flex items-start gap-2.5">
@@ -493,16 +493,16 @@ export default function PlannerPage() {
         {/* Week navigation */}
         <div className="flex items-center justify-between">
           <button onClick={() => setWeekStart(d => addDays(d, -7))}
-            className="font-mono text-xs text-[#777790] hover:text-white uppercase tracking-wider">
+            className="font-mono text-xs text-[rgba(28,31,58,0.40)] hover:text-[#1c1f3a] uppercase tracking-wider">
             ← Prev Week
           </button>
-          <p className="font-mono text-xs text-[#777790] uppercase tracking-wider">
+          <p className="font-mono text-xs text-[rgba(28,31,58,0.40)] uppercase tracking-wider">
             {weekStart.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
             &nbsp;–&nbsp;
             {addDays(weekStart, 6).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
           </p>
           <button onClick={() => setWeekStart(d => addDays(d, 7))}
-            className="font-mono text-xs text-[#777790] hover:text-white uppercase tracking-wider">
+            className="font-mono text-xs text-[rgba(28,31,58,0.40)] hover:text-[#1c1f3a] uppercase tracking-wider">
             Next Week →
           </button>
         </div>
@@ -511,26 +511,26 @@ export default function PlannerPage() {
         {loading ? (
           <p className="font-mono text-xs text-[#666680]">Loading plan…</p>
         ) : error ? (
-          <div className="border border-[#FF4D6D] bg-[#FF4D6D]/5 px-4 py-3">
-            <p className="font-mono text-xs text-[#FF4D6D]">{error}</p>
-            <button onClick={fetchPlan} className="font-mono text-[10px] text-[#FF4D6D] underline mt-1">Retry</button>
+          <div className="border border-[#4A6FA5] bg-[#4A6FA5]/5 px-4 py-3">
+            <p className="font-mono text-xs text-[#4A6FA5]">{error}</p>
+            <button onClick={fetchPlan} className="font-mono text-[10px] text-[#4A6FA5] underline mt-1">Retry</button>
           </div>
         ) : (
-          <div className="border border-[rgba(255,255,255,0.10)] bg-[rgba(16,16,32,0.85)] overflow-hidden" style={{ animationDelay: "0.4s" }}>
+          <div className="border border-[rgba(28,31,58,0.10)] bg-[rgba(16,16,32,0.85)] overflow-hidden" style={{ animationDelay: "0.4s" }}>
             {/* Day headers */}
-            <div className="grid grid-cols-7 border-b border-[rgba(255,255,255,0.10)]">
+            <div className="grid grid-cols-7 border-b border-[rgba(28,31,58,0.10)]">
               {weekDays.map(d => {
                 const isToday = isoDate(d) === isoDate(new Date())
                 return (
                   <div key={isoDate(d)}
                     className={cn(
-                      "px-2 py-2 border-r border-[rgba(255,255,255,0.10)] last:border-r-0 text-center",
-                      isToday ? "bg-[#FF4D6D]/5" : ""
+                      "px-2 py-2 border-r border-[rgba(28,31,58,0.10)] last:border-r-0 text-center",
+                      isToday ? "bg-[#4A6FA5]/5" : ""
                     )}>
                     <p className="font-mono text-[9px] text-[#666680] uppercase tracking-wider">
                       {d.toLocaleDateString("en-IN", { weekday: "short" })}
                     </p>
-                    <p className={cn("font-mono text-sm font-black", isToday ? "text-[#FF4D6D]" : "text-white")}>
+                    <p className={cn("font-mono text-sm font-black", isToday ? "text-[#4A6FA5]" : "text-[#1c1f3a]")}>
                       {d.getDate()}
                     </p>
                   </div>
@@ -545,7 +545,7 @@ export default function PlannerPage() {
                 const daySessions = byDate[key] ?? []
                 return (
                   <div key={key}
-                    className="border-r border-[rgba(255,255,255,0.10)] last:border-r-0 p-1.5 min-h-[200px] align-top">
+                    className="border-r border-[rgba(28,31,58,0.10)] last:border-r-0 p-1.5 min-h-[200px] align-top">
                     {daySessions.length === 0 ? (
                       <p className="font-mono text-[8px] text-[#DDD] text-center mt-4">—</p>
                     ) : (
@@ -560,7 +560,7 @@ export default function PlannerPage() {
 
             {/* Empty week message */}
             {weekSessions.length === 0 && !loading && (
-              <div className="col-span-7 py-6 text-center border-t border-[rgba(255,255,255,0.10)]">
+              <div className="col-span-7 py-6 text-center border-t border-[rgba(28,31,58,0.10)]">
                 <p className="font-mono text-xs text-[#666680]">No sessions scheduled this week</p>
               </div>
             )}

@@ -12,7 +12,7 @@ const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   SliderProps
 >(({ className, fillColor, ...props }, ref) => {
-  const color = fillColor ?? "#FF4D6D"
+  const color = fillColor ?? "#4A6FA5"
   return (
     <SliderPrimitive.Root
       ref={ref}

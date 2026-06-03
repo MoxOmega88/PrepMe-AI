@@ -111,8 +111,8 @@ function DifficultyMeter({ value, prevValue }: { value: number; prevValue: numbe
   const changed = tier !== prevTier
   const up = tier > prevTier
   const labels = ["Easy", "Medium", "Hard"]
-  const colors = ["bg-[#39FF6A]", "bg-[#F5A623]", "bg-[#FF4D6D]"]
-  const textColors = ["text-[#39FF6A]", "text-[#F5A623]", "text-[#FF4D6D]"]
+  const colors = ["bg-[#2a7d4f]", "bg-[#c47c2b]", "bg-[#4A6FA5]"]
+  const textColors = ["text-[#2a7d4f]", "text-[#c47c2b]", "text-[#4A6FA5]"]
 
   return (
     <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ function DifficultyMeter({ value, prevValue }: { value: number; prevValue: numbe
 function Toast({ message, visible }: { message: string; visible: boolean }) {
   return (
     <div className={cn(
-      "fixed top-4 right-4 z-50 bg-[#FF4D6D] text-white text-xs font-bold font-mono uppercase tracking-wider px-4 py-3 border border-[#FF4D6D] rounded-none",
+      "fixed top-4 right-4 z-50 bg-[#4A6FA5] text-white text-xs font-bold font-mono uppercase tracking-wider px-4 py-3 border border-[#4A6FA5] rounded-none",
       "transition-all duration-300",
       visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
     )}>
@@ -149,7 +149,7 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 function XPFloat({ amount, visible }: { amount: number; visible: boolean }) {
   return (
     <div className={cn(
-      "absolute bottom-14 left-1/2 -translate-x-1/2 font-mono font-black text-lg text-[#39FF6A]",
+      "absolute bottom-14 left-1/2 -translate-x-1/2 font-mono font-black text-lg text-[#2a7d4f]",
       "pointer-events-none transition-all duration-700",
       visible ? "opacity-100 -translate-y-8" : "opacity-0 translate-y-0"
     )}>
@@ -173,7 +173,7 @@ function XPCounter({ target }: { target: number }) {
     }, 30)
     return () => clearInterval(id)
   }, [target])
-  return <span className="font-mono font-black text-[#39FF6A]">⚡ {display} XP</span>
+  return <span className="font-mono font-black text-[#2a7d4f]">⚡ {display} XP</span>
 }
 
 // ── In-quiz streak dots ────────────────────────────────────────────────────────
@@ -203,7 +203,7 @@ function StreakDots({ attempts }: { attempts: AttemptRecord[] }) {
         {last4.map((a, i) => (
           <div key={i} className={cn(
             "w-2 h-2 transition-all rounded-none",
-            a.assessment.correctness === "correct" ? "bg-[#39FF6A]" : "bg-[#FF4D6D]"
+            a.assessment.correctness === "correct" ? "bg-[#2a7d4f]" : "bg-[#4A6FA5]"
           )} />
         ))}
       </div>
@@ -221,25 +221,25 @@ function ResultBanner({ correctness, confidence, xpEarned, diffDelta }: {
 
   let bg = "", icon = "", title = "", sub = ""
   if (correct && confidence === "sure") {
-    bg = "bg-[#39FF6A] text-[#0A0A0A]"; icon = "💪"; title = "Solid Knowledge!"
+    bg = "bg-[#2a7d4f] text-[#0A0A0A]"; icon = "💪"; title = "Solid Knowledge!"
     sub = diffDelta > 0 ? "Difficulty increasing — keep it up!" : ""
   } else if (correct && confidence === "unsure") {
-    bg = "bg-[#39FF6A]/80 text-[#0A0A0A]"; icon = "✨"; title = "Nice!"
+    bg = "bg-[#2a7d4f]/80 text-[#0A0A0A]"; icon = "✨"; title = "Nice!"
     sub = "Build more confidence on this topic."
   } else if (correct && confidence === "guessing") {
-    bg = "bg-[#39FF6A]/60 text-[#0A0A0A]"; icon = "🎯"; title = "Lucky guess!"
+    bg = "bg-[#2a7d4f]/60 text-[#0A0A0A]"; icon = "🎯"; title = "Lucky guess!"
     sub = "Make sure you understand why this is correct."
   } else if (!correct && !partial && confidence === "sure") {
-    bg = "bg-[#FF4D6D] text-white"; icon = "⚠️"; title = "Misconception Alert!"
+    bg = "bg-[#4A6FA5] text-white"; icon = "⚠️"; title = "Misconception Alert!"
     sub = "You were sure but incorrect — this is important to fix."
   } else if (!correct && !partial && confidence === "guessing") {
-    bg = "bg-[#F5A623] text-[#0A0A0A]"; icon = "📖"; title = "Need more study here."
+    bg = "bg-[#c47c2b] text-[#0A0A0A]"; icon = "📖"; title = "Need more study here."
     sub = "Review this topic before your next session."
   } else if (partial) {
-    bg = "bg-[#F5A623]/80 text-[#0A0A0A]"; icon = "⚡"; title = "Partial credit!"
+    bg = "bg-[#c47c2b]/80 text-[#0A0A0A]"; icon = "⚡"; title = "Partial credit!"
     sub = "Close — refine your understanding."
   } else {
-    bg = "bg-[#FF4D6D]/80 text-white"; icon = "❌"; title = "Incorrect"
+    bg = "bg-[#4A6FA5]/80 text-white"; icon = "❌"; title = "Incorrect"
     sub = "Review the explanation below."
   }
 
@@ -267,13 +267,13 @@ function MisconceptionBox({ text, visible, onJournal }: {
 }) {
   return (
     <div className={cn(
-      "border-l-4 border-[#F5A623] bg-[#F5A623]/5 p-4 space-y-2 rounded-none",
+      "border-l-4 border-[#c47c2b] bg-[#c47c2b]/5 p-4 space-y-2 rounded-none",
       "transition-all duration-500",
       visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none h-0 overflow-hidden p-0"
     )}>
       <p className="section-label amber">What went wrong:</p>
-      <p className="text-sm text-white font-mono leading-relaxed">{text}</p>
-      <button onClick={onJournal} className="text-[10px] text-[#F5A623] font-bold uppercase tracking-wider hover:underline rounded-none">
+      <p className="text-sm text-[#1c1f3a] font-mono leading-relaxed">{text}</p>
+      <button onClick={onJournal} className="text-[10px] text-[#c47c2b] font-bold uppercase tracking-wider hover:underline rounded-none">
         ■ Saved to Mistake Journal →
       </button>
     </div>
@@ -298,28 +298,28 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
     setTopic(initialTopic && list.includes(initialTopic) ? initialTopic : list[0])
   }, [subject, initialTopic])
 
-  const selectCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-white px-3 py-2.5 text-xs font-mono outline-none focus:border-[#FF4D6D] transition-colors rounded-none"
+  const selectCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1c1f3a] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors rounded-none"
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-center justify-between animate-slide-right">
         <div>
           <p className="section-label pink mb-2 animate-[slide-right_0.5s_ease-out_0.1s_both]">Quiz</p>
-          <h1 className="font-serif font-black text-3xl text-white animate-[slide-right_0.5s_ease-out_0.2s_both]">Configure Session</h1>
+          <h1 className="font-serif font-black text-3xl text-[#1c1f3a] animate-[slide-right_0.5s_ease-out_0.2s_both]">Configure Session</h1>
         </div>
-        <button onClick={onJournal} className="text-[10px] text-[#8888A0] font-bold uppercase tracking-wider hover:text-[#F5A623] transition-colors animate-[slide-right_0.5s_ease-out_0.3s_both] rounded-none">
+        <button onClick={onJournal} className="text-[10px] text-[#8888A0] font-bold uppercase tracking-wider hover:text-[#c47c2b] transition-colors animate-[slide-right_0.5s_ease-out_0.3s_both] rounded-none">
           ■ Mistake Journal
         </button>
       </div>
 
       {/* Mode */}
-      <div className="neo-card neo-card-amber p-5 border border-[rgba(255,255,255,0.14)] rounded-none" style={{ animationDelay: "0.2s" }}>
+      <div className="neo-card neo-card-amber p-5 border border-[rgba(28,31,58,0.14)] rounded-none" style={{ animationDelay: "0.2s" }}>
         <p className="section-label mb-3">Mode</p>
         <div className="flex gap-2">
           {(["practice","exam"] as Mode[]).map(m => (
             <button key={m} onClick={() => setMode(m)}
               className={cn("flex-1 py-3 text-xs font-black uppercase tracking-wider transition-colors rounded-none",
-                mode === m ? "bg-[#FF4D6D] text-white shadow-[0_0_15px_rgba(255,77,109,0.4)]" : "bg-[rgba(255,255,255,0.06)] text-[#8888A0] hover:text-white border border-[rgba(255,255,255,0.14)] hover:border-[#FF4D6D]")}>
+                mode === m ? "bg-[#4A6FA5] text-white shadow-[0_0_15px_rgba(74,111,165,0.4)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#4A6FA5]")}>
               {m === "practice" ? "🎯 Practice" : "⏱ Exam"}
             </button>
           ))}
@@ -330,19 +330,19 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
       </div>
 
       {/* Settings */}
-      <div className="neo-card neo-card-pink p-5 space-y-5 border border-[rgba(255,255,255,0.14)] rounded-none relative overflow-hidden group/settings" style={{ animationDelay: "0.3s" }}>
-        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,77,109,0.4) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+      <div className="neo-card neo-card-pink p-5 space-y-5 border border-[rgba(28,31,58,0.14)] rounded-none relative overflow-hidden group/settings" style={{ animationDelay: "0.3s" }}>
+        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(74,111,165,0.4) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
         
         <div className="relative z-10 space-y-5">
           <div>
             <p className="section-label mb-2">Topic</p>
             <Select value={topic} onValueChange={setTopic}>
-              <SelectTrigger className="w-full bg-[rgba(16,16,32,0.82)] border-[rgba(255,255,255,0.14)] text-[#E8E8F0] font-mono text-xs hover:border-[#FF4D6D] transition-colors focus:ring-[#FF4D6D] py-3 h-auto shadow-md hover:shadow-[0_0_12px_rgba(255,77,109,0.3)]">
+              <SelectTrigger className="w-full bg-[rgba(16,16,32,0.82)] border-[rgba(28,31,58,0.14)] text-[#1c1f3a] font-mono text-xs hover:border-[#4A6FA5] transition-colors focus:ring-[#4A6FA5] py-3 h-auto shadow-md hover:shadow-[0_0_12px_rgba(74,111,165,0.3)]">
                 <SelectValue placeholder="Select a topic" />
               </SelectTrigger>
-              <SelectContent className="bg-[#181826] border-[rgba(255,255,255,0.18)] text-[#E8E8F0] font-mono shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-md max-h-64">
+              <SelectContent className="bg-[rgba(255,255,255,0.88)] border-[rgba(28,31,58,0.18)] text-[#1c1f3a] font-mono shadow-[0_8px_32px_rgba(0,0,0,0.8)] backdrop-blur-md max-h-64">
                 {topics.map(t => (
-                  <SelectItem key={t} value={t} className="focus:bg-[#FF4D6D] focus:text-white cursor-pointer text-xs transition-colors py-2">{t}</SelectItem>
+                  <SelectItem key={t} value={t} className="focus:bg-[#4A6FA5] focus:text-white cursor-pointer text-xs transition-colors py-2">{t}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -354,7 +354,7 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
               {(["mixed","mcq","truefalse","fillblank","short","teach_back"] as QType[]).map(t => (
                 <button key={t} onClick={() => setQType(t)}
                   className={cn("py-2.5 text-[10px] font-black uppercase tracking-wider transition-colors rounded-none",
-                    qType === t ? "bg-[#39FF6A] text-[#0A0A0A] shadow-[0_0_15px_rgba(57,255,106,0.3)]" : "bg-[rgba(255,255,255,0.06)] text-[#8888A0] hover:text-white border border-[rgba(255,255,255,0.14)] hover:border-[#39FF6A]")}>
+                    qType === t ? "bg-[#2a7d4f] text-[#0A0A0A] shadow-[0_0_15px_rgba(42,125,79,0.3)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#2a7d4f]")}>
                   {t === "mixed" ? "Mix" : t === "mcq" ? "MCQ" : t === "truefalse" ? "T/F" : t === "fillblank" ? "Fill" : t === "short" ? "Short" : "Teach Back"}
                 </button>
               ))}
@@ -367,7 +367,7 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
               {[5,10,15].map(n => (
                 <button key={n} onClick={() => setCount(n)}
                   className={cn("flex-1 py-3 text-xs font-black transition-colors rounded-none",
-                    count === n ? "bg-[#FF4D6D] text-white shadow-[0_0_15px_rgba(255,77,109,0.3)]" : "bg-[rgba(255,255,255,0.06)] text-[#8888A0] hover:text-white border border-[rgba(255,255,255,0.14)] hover:border-[#FF4D6D]")}>
+                    count === n ? "bg-[#4A6FA5] text-white shadow-[0_0_15px_rgba(74,111,165,0.3)]" : "bg-[rgba(28,31,58,0.06)] text-[#8888A0] hover:text-[#1c1f3a] border border-[rgba(28,31,58,0.14)] hover:border-[#4A6FA5]")}>
                   {n}
                 </button>
               ))}
@@ -384,7 +384,7 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
                 min={0.1} max={1} step={0.1}
                 value={[difficulty]}
                 onValueChange={(val) => setDifficulty(val[0])}
-                fillColor={diffTier(difficulty) === 0 ? "#39FF6A" : diffTier(difficulty) === 1 ? "#F5A623" : "#FF4D6D"}
+                fillColor={diffTier(difficulty) === 0 ? "#2a7d4f" : diffTier(difficulty) === 1 ? "#c47c2b" : "#4A6FA5"}
               />
             </div>
           </div>
@@ -392,7 +392,7 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
       </div>
 
       <button onClick={() => onStart({ topic, qType, mode, count, difficulty })}
-        className="brut-btn brut-btn-pink w-full py-3.5 text-sm font-bold animate-float rounded-none shadow-[0_0_15px_rgba(255,77,109,0.4)]" style={{ animationDelay: "0.4s" }}>
+        className="brut-btn brut-btn-pink w-full py-3.5 text-sm font-bold animate-float rounded-none shadow-[0_0_15px_rgba(74,111,165,0.4)]" style={{ animationDelay: "0.4s" }}>
         Start Quiz →
       </button>
     </div>
@@ -459,8 +459,8 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
     <div className="max-w-3xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="font-mono text-xs font-black text-[#777790]">Q{idx + 1} / {total}</span>
-          <span className="text-[10px] px-2 py-0.5 bg-[#FF4D6D]/10 text-[#FF4D6D] font-bold uppercase tracking-wider border border-[#FF4D6D]/20 rounded-none">{q.type}</span>
+          <span className="font-mono text-xs font-black text-[rgba(28,31,58,0.40)]">Q{idx + 1} / {total}</span>
+          <span className="text-[10px] px-2 py-0.5 bg-[#4A6FA5]/10 text-[#4A6FA5] font-bold uppercase tracking-wider border border-[#4A6FA5]/20 rounded-none">{q.type}</span>
           <DifficultyMeter value={curDiff} prevValue={prevDiff} />
         </div>
         <div className="flex items-center gap-4">
@@ -469,16 +469,16 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
       </div>
 
       <div className="h-0.5 bg-[#C0BAB0] overflow-hidden rounded-none">
-        <div className="h-full bg-[#FF4D6D] transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-[#4A6FA5] transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
       {attempts.length > 0 && <StreakDots attempts={attempts} />}
 
-      <div className="neo-card neo-card-green p-6 space-y-5 relative border border-[rgba(255,255,255,0.14)] rounded-none overflow-hidden group/qcard">
-        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(57,255,106,0.3) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+      <div className="neo-card neo-card-green p-6 space-y-5 relative border border-[rgba(28,31,58,0.14)] rounded-none overflow-hidden group/qcard">
+        <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(42,125,79,0.3) 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
         <div className="relative z-10 space-y-5">
           {/* Top-right live timer */}
-          <div className="absolute top-0 right-0 font-mono text-xs font-bold text-[#39FF6A] bg-[rgba(57,255,106,0.1)] px-3 py-1 border border-[rgba(57,255,106,0.3)] rounded-none">
+          <div className="absolute top-0 right-0 font-mono text-xs font-bold text-[#2a7d4f] bg-[rgba(42,125,79,0.1)] px-3 py-1 border border-[rgba(42,125,79,0.3)] rounded-none">
             {formatTime(elapsedSeconds)}
           </div>
 
@@ -487,7 +487,7 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
               ■ CHAPTER: {chapterTopic}
             </p>
           )}
-          <p className="text-base text-white font-mono leading-relaxed pr-16">{q.question}</p>
+          <p className="text-base text-[#1c1f3a] font-mono leading-relaxed pr-16">{q.question}</p>
 
           {q.type === "mcq" && q.options && (
             <div className="space-y-3 mt-2">
@@ -497,9 +497,9 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
                   <button key={i} onClick={() => setSelected(letter)}
                     className={cn("w-full text-left px-5 py-4 border text-xs font-mono transition-all duration-300 rounded-none shadow-sm hover:translate-x-1",
                       selected === letter
-                        ? "border-[#FF4D6D] bg-[#FF4D6D]/15 text-[#FF4D6D] font-bold shadow-[inset_4px_0_0_#FF4D6D]"
-                        : "border-[rgba(255,255,255,0.1)] text-[#E8E8F0] hover:border-[#FF4D6D]/50 hover:bg-[rgba(255,255,255,0.05)] bg-[rgba(16,16,32,0.6)]")}>
-                    <span className={cn("font-black mr-3", selected === letter ? "text-[#FF4D6D]" : "text-[#777790]")}>{letter})</span>{opt.replace(/^[A-D]\)\s*/,"")}
+                        ? "border-[#4A6FA5] bg-[#4A6FA5]/15 text-[#4A6FA5] font-bold shadow-[inset_4px_0_0_#4A6FA5]"
+                        : "border-[rgba(255,255,255,0.1)] text-[#1c1f3a] hover:border-[#4A6FA5]/50 hover:bg-[rgba(28,31,58,0.05)] bg-[rgba(16,16,32,0.6)]")}>
+                    <span className={cn("font-black mr-3", selected === letter ? "text-[#4A6FA5]" : "text-[rgba(28,31,58,0.40)]")}>{letter})</span>{opt.replace(/^[A-D]\)\s*/,"")}
                   </button>
                 )
               })}
@@ -512,8 +512,8 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
                 <button key={v} onClick={() => setSelected(v)}
                   className={cn("flex-1 py-4 border text-xs font-black uppercase tracking-wider transition-all duration-300 rounded-none hover:-translate-y-1 shadow-md",
                     selected === v
-                      ? "border-[#39FF6A] bg-[#39FF6A]/15 text-[#39FF6A] shadow-[0_0_15px_rgba(57,255,106,0.2)]"
-                      : "border-[rgba(255,255,255,0.1)] text-[#E8E8F0] hover:border-[#39FF6A]/50 hover:bg-[rgba(255,255,255,0.05)] bg-[rgba(16,16,32,0.6)]")}>
+                      ? "border-[#2a7d4f] bg-[#2a7d4f]/15 text-[#2a7d4f] shadow-[0_0_15px_rgba(42,125,79,0.2)]"
+                      : "border-[rgba(255,255,255,0.1)] text-[#1c1f3a] hover:border-[#2a7d4f]/50 hover:bg-[rgba(28,31,58,0.05)] bg-[rgba(16,16,32,0.6)]")}>
                   {v === "true" ? "✓ True" : "✗ False"}
                 </button>
               ))}
@@ -523,13 +523,13 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
           {q.type === "fillblank" && (
             <input value={selected} onChange={e => setSelected(e.target.value)}
               placeholder="Type the missing word…"
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(255,255,255,0.14)] text-white px-4 py-3 text-sm font-mono outline-none focus:border-[#FF4D6D] focus:shadow-[0_0_15px_rgba(255,77,109,0.2)] transition-all rounded-none mt-2" />
+              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all rounded-none mt-2" />
           )}
 
           {q.type === "short" && (
             <textarea value={selected} onChange={e => setSelected(e.target.value)}
               placeholder="Write your answer…" rows={4}
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(255,255,255,0.14)] text-white px-4 py-3 text-sm font-mono outline-none focus:border-[#FF4D6D] focus:shadow-[0_0_15px_rgba(255,77,109,0.2)] transition-all resize-none rounded-none mt-2" />
+              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all resize-none rounded-none mt-2" />
           )}
 
           {q.type === "teach_back" && (
@@ -538,7 +538,7 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
               onChange={e => setSelected(e.target.value)}
               placeholder="Explain in your own words — aim for 3+ sentences"
               style={{ minHeight: "140px" }}
-              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(255,255,255,0.14)] text-white px-4 py-3 text-sm font-mono outline-none focus:border-[#FF4D6D] focus:shadow-[0_0_15px_rgba(255,77,109,0.2)] transition-all resize-none rounded-none mt-2"
+              className="w-full bg-[rgba(16,16,32,0.8)] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none focus:border-[#4A6FA5] focus:shadow-[0_0_15px_rgba(74,111,165,0.2)] transition-all resize-none rounded-none mt-2"
             />
           )}
 
@@ -550,8 +550,8 @@ function QuestionCard({ q, chapterTopic, idx, total, mode, curDiff, prevDiff, at
                   <button key={val} onClick={() => setConfidence(val)}
                     className={cn("flex-1 py-3 text-[10px] font-black uppercase tracking-wider border transition-all duration-300 rounded-none hover:-translate-y-1",
                       confidence === val
-                        ? "border-[#39FF6A] bg-[#39FF6A]/15 text-[#39FF6A] shadow-[0_0_15px_rgba(57,255,106,0.2)]"
-                        : "border-[rgba(255,255,255,0.1)] text-[#777790] hover:border-[rgba(255,255,255,0.3)] hover:text-white bg-[rgba(16,16,32,0.6)]")}>
+                        ? "border-[#2a7d4f] bg-[#2a7d4f]/15 text-[#2a7d4f] shadow-[0_0_15px_rgba(42,125,79,0.2)]"
+                        : "border-[rgba(255,255,255,0.1)] text-[rgba(28,31,58,0.40)] hover:border-[rgba(255,255,255,0.3)] hover:text-[#1c1f3a] bg-[rgba(16,16,32,0.6)]")}>
                     {label}
                   </button>
                 ))}
@@ -589,38 +589,38 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
   if (q.type === "teach_back" || assessment.teach_back) {
     return (
       <div className="max-w-3xl mx-auto space-y-4 animate-in slide-in-from-bottom-2 duration-300">
-        <div className="p-5 space-y-4 border border-[rgba(255,255,255,0.14)] rounded-none bg-[#181826]">
+        <div className="p-5 space-y-4 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
           <p className="section-label pink mb-3">Teach-Back Rubric</p>
           <div className="space-y-2 font-mono text-xs">
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(255,255,255,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#E8E8F0]">Accuracy</span>
-              <span className="font-black text-sm text-[#39FF6A]">{assessment.accuracy ?? 0}/10</span>
+            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
+              <span className="font-bold text-[#1c1f3a]">Accuracy</span>
+              <span className="font-black text-sm text-[#2a7d4f]">{assessment.accuracy ?? 0}/10</span>
             </div>
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(255,255,255,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#E8E8F0]">Completeness</span>
-              <span className="font-black text-sm text-[#F5A623]">{assessment.completeness ?? 0}/10</span>
+            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
+              <span className="font-bold text-[#1c1f3a]">Completeness</span>
+              <span className="font-black text-sm text-[#c47c2b]">{assessment.completeness ?? 0}/10</span>
             </div>
-            <div className="flex justify-between items-center p-2.5 border border-[rgba(255,255,255,0.14)] bg-[#1E1E2E] rounded-none">
-              <span className="font-bold text-[#E8E8F0]">Clarity</span>
-              <span className="font-black text-sm text-[#FF4D6D]">{assessment.clarity ?? 0}/10</span>
+            <div className="flex justify-between items-center p-2.5 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
+              <span className="font-bold text-[#1c1f3a]">Clarity</span>
+              <span className="font-black text-sm text-[#4A6FA5]">{assessment.clarity ?? 0}/10</span>
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center p-4 border border-[rgba(255,255,255,0.14)] bg-[#1E1E2E] rounded-none">
+          <div className="flex flex-col items-center justify-center p-4 border border-[rgba(28,31,58,0.14)] bg-[#1E1E2E] rounded-none">
             <p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-mono">Overall Score</p>
-            <p className="font-serif font-black text-5xl text-[#E8E8F0] mt-1">{assessment.score_percentage}</p>
+            <p className="font-serif font-black text-5xl text-[#1c1f3a] mt-1">{assessment.score_percentage}</p>
             <p className="text-[10px] text-[#8888A0] font-mono mt-1">/ 100</p>
           </div>
 
           <div className="pt-2">
             <p className="section-label green mb-2">Teacher Feedback</p>
-            <p className="text-sm text-[#E8E8F0] font-mono leading-relaxed">{assessment.feedback_for_student}</p>
+            <p className="text-sm text-[#1c1f3a] font-mono leading-relaxed">{assessment.feedback_for_student}</p>
           </div>
 
           {assessment.key_points_missed && assessment.key_points_missed.length > 0 && (
             <div className="pt-2 border-t border-[rgba(255,255,255,0.1)]">
               <p className="section-label pink mb-2">Missed points:</p>
-              <ul className="list-disc pl-5 text-sm text-[#E8E8F0] font-mono space-y-1">
+              <ul className="list-disc pl-5 text-sm text-[#1c1f3a] font-mono space-y-1">
                 {assessment.key_points_missed.map((pt, i) => (
                   <li key={i}>{pt}</li>
                 ))}
@@ -645,15 +645,15 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
       <MisconceptionBox text={assessment.misconception ?? ""} visible={showMisconception} onJournal={onJournal} />
 
       {q.type === "mcq" && q.options && (
-        <div className="p-4 space-y-2 border border-[rgba(255,255,255,0.14)] rounded-none bg-[#181826]">
+        <div className="p-4 space-y-2 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
           {q.options.map((opt, i) => {
             const letter = ["A","B","C","D"][i]
             const isCorrect = letter === String(q.correct).toUpperCase()
             const isStudent = letter === studentAnswer.toUpperCase()
             return (
               <div key={i} className={cn("px-4 py-2.5 border text-xs font-mono transition-all rounded-none",
-                isCorrect ? "border-[#39FF6A] bg-[#39FF6A]/10 text-[#39FF6A] font-bold"
-                  : isStudent && !isCorrect ? "border-[#FF4D6D] bg-[#FF4D6D]/10 text-[#FF4D6D]"
+                isCorrect ? "border-[#2a7d4f] bg-[#2a7d4f]/10 text-[#2a7d4f] font-bold"
+                  : isStudent && !isCorrect ? "border-[#4A6FA5] bg-[#4A6FA5]/10 text-[#4A6FA5]"
                   : "border-[rgba(255,255,255,0.1)] text-[#8888A0]")}>
                 <span className="font-black mr-2">{letter})</span>
                 {opt.replace(/^[A-D]\)\s*/,"")}
@@ -665,16 +665,16 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
       )}
 
       {(q.type === "short" || q.type === "fillblank") && assessment.model_answer && (
-        <div className="p-4 border border-[rgba(255,255,255,0.14)] rounded-none bg-[#181826]">
+        <div className="p-4 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
           <p className="section-label green mb-1">Model Answer</p>
-          <p className="text-sm text-[#E8E8F0] font-mono mt-2">{assessment.model_answer}</p>
+          <p className="text-sm text-[#1c1f3a] font-mono mt-2">{assessment.model_answer}</p>
         </div>
       )}
 
       {q.explanation && (
-        <div className="border-l-4 border-[#39FF6A] bg-[#39FF6A]/5 p-4 rounded-none">
+        <div className="border-l-4 border-[#2a7d4f] bg-[#2a7d4f]/5 p-4 rounded-none">
           <p className="section-label green mb-1">Explanation</p>
-          <p className="text-sm text-[#E8E8F0] font-mono mt-2">{q.explanation}</p>
+          <p className="text-sm text-[#1c1f3a] font-mono mt-2">{q.explanation}</p>
         </div>
       )}
 
@@ -694,7 +694,7 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
   const partial = attempts.filter(a => a.assessment.correctness === "partially_correct").length
   const total   = attempts.length
   const pct     = Math.round(((correct + partial * 0.5) / total) * 100)
-  const color   = pct >= 70 ? "#39FF6A" : pct >= 40 ? "#F5A623" : "#FF4D6D"
+  const color   = pct >= 70 ? "#2a7d4f" : pct >= 40 ? "#c47c2b" : "#4A6FA5"
 
   const sureCorrect   = attempts.filter(a => a.confidence === "sure"     && a.assessment.correctness === "correct").length
   const sureWrong     = attempts.filter(a => a.confidence === "sure"     && a.assessment.correctness !== "correct").length
@@ -714,9 +714,9 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
   }, [])
 
   const confCards = [
-    { label: "Sure & Correct",  count: sureCorrect,   icon: "🏆", border: "border-[#39FF6A]", text: "text-[#39FF6A]" },
-    { label: "Sure & Wrong",    count: sureWrong,     icon: "⚠️", border: "border-[#FF4D6D]", text: "text-[#FF4D6D]", danger: true },
-    { label: "Unsure & Correct",count: unsureCorrect, icon: "💡", border: "border-[#F5A623]", text: "text-[#F5A623]" },
+    { label: "Sure & Correct",  count: sureCorrect,   icon: "🏆", border: "border-[#2a7d4f]", text: "text-[#2a7d4f]" },
+    { label: "Sure & Wrong",    count: sureWrong,     icon: "⚠️", border: "border-[#4A6FA5]", text: "text-[#4A6FA5]", danger: true },
+    { label: "Unsure & Correct",count: unsureCorrect, icon: "💡", border: "border-[#c47c2b]", text: "text-[#c47c2b]" },
     { label: "Guessing & Wrong",count: guessWrong,    icon: "📖", border: "border-[#555]",    text: "text-[#8888A0]" },
   ]
 
@@ -725,10 +725,10 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
       <div>
         <p className="section-label pink mb-2">Results</p>
         <h1 className="font-serif font-black text-4xl" style={{ color }}>{correct}/{total}</h1>
-        <p className="text-[#777790] font-mono text-sm mt-1">{pct}% accuracy</p>
+        <p className="text-[rgba(28,31,58,0.40)] font-mono text-sm mt-1">{pct}% accuracy</p>
         <div className="flex gap-6 mt-3">
-          <div><p className="font-mono font-black text-[#39FF6A]">+{totalXP}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">XP earned</p></div>
-          <div><p className="font-mono font-black text-[#F5A623]">{getStreak()}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">day streak</p></div>
+          <div><p className="font-mono font-black text-[#2a7d4f]">+{totalXP}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">XP earned</p></div>
+          <div><p className="font-mono font-black text-[#c47c2b]">{getStreak()}</p><p className="text-[10px] text-[#8888A0] uppercase tracking-wider font-bold">day streak</p></div>
         </div>
       </div>
 
@@ -737,7 +737,7 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
         <p className="section-label amber mb-3">Confidence vs Accuracy</p>
         <div className="grid grid-cols-2 gap-2">
           {confCards.map(c => (
-            <div key={c.label} className={cn("brut-card p-4 border rounded-none", c.border, c.danger ? "ring-1 ring-[#FF4D6D]" : "")}>
+            <div key={c.label} className={cn("brut-card p-4 border rounded-none", c.border, c.danger ? "ring-1 ring-[#4A6FA5]" : "")}>
               <p className="text-xl mb-1">{c.icon}</p>
               <p className={cn("font-mono text-3xl font-black", c.text)}>{c.count}</p>
               <p className="text-[10px] text-[#8888A0] mt-1 uppercase tracking-wider font-bold">{c.label}</p>
@@ -745,29 +745,29 @@ function ResultsScreen({ attempts, totalXP, topic, authFetch, onRetake }: {
           ))}
         </div>
         {insight && (
-          <div className="border-l-4 border-[#FF4D6D] bg-[#FF4D6D]/5 p-3 mt-3 rounded-none">
+          <div className="border-l-4 border-[#4A6FA5] bg-[#4A6FA5]/5 p-3 mt-3 rounded-none">
             <p className="section-label pink mb-1">AI Insight</p>
-            <p className="text-xs text-white font-mono mt-1">{insight}</p>
+            <p className="text-xs text-[#1c1f3a] font-mono mt-1">{insight}</p>
           </div>
         )}
       </div>
 
       {/* Breakdown */}
-      <div className="p-4 space-y-3 border border-[rgba(255,255,255,0.14)] rounded-none bg-[#181826]">
+      <div className="p-4 space-y-3 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
         <p className="section-label mb-2">Question Breakdown</p>
         {attempts.map((a, i) => {
           const c = a.assessment.correctness
           const icon = c === "correct" ? "✅" : c === "partially_correct" ? "⚡" : "❌"
           const confEmoji = a.confidence === "sure" ? "😎" : a.confidence === "unsure" ? "🤔" : "🎲"
           return (
-            <div key={i} className="flex items-start gap-3 py-2 border-b border-[rgba(255,255,255,0.08)] last:border-0">
+            <div key={i} className="flex items-start gap-3 py-2 border-b border-[rgba(28,31,58,0.08)] last:border-0">
               <span className="text-base flex-shrink-0">{icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-[#E8E8F0] font-mono truncate">{a.question.question}</p>
+                <p className="text-xs text-[#1c1f3a] font-mono truncate">{a.question.question}</p>
                 <p className="text-[10px] text-[#8888A0] mt-0.5 font-mono">
                   {confEmoji} {a.confidence} · {a.studentAnswer || "—"}
                   {a.assessment.model_answer && c !== "correct" && (
-                    <> · <span className="text-[#39FF6A]">{a.assessment.model_answer}</span></>
+                    <> · <span className="text-[#2a7d4f]">{a.assessment.model_answer}</span></>
                   )}
                 </p>
               </div>
@@ -809,15 +809,15 @@ function JournalScreen({ authFetch, onBack, onRetry }: {
   return (
     <div className="max-w-3xl mx-auto space-y-5">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="text-[10px] text-[#777790] font-bold uppercase tracking-wider hover:text-white transition-colors rounded-none">← Back</button>
+        <button onClick={onBack} className="text-[10px] text-[rgba(28,31,58,0.40)] font-bold uppercase tracking-wider hover:text-[#1c1f3a] transition-colors rounded-none">← Back</button>
         <div>
           <p className="section-label amber mb-1">History</p>
-          <h1 className="font-serif font-black text-2xl text-white">Mistake Journal</h1>
+          <h1 className="font-serif font-black text-2xl text-[#1c1f3a]">Mistake Journal</h1>
         </div>
       </div>
 
       <select value={filter} onChange={e => setFilter(e.target.value)}
-        className="w-full bg-[#1E1E2E] border border-[rgba(255,255,255,0.14)] text-[#E8E8F0] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#FF4D6D] transition-colors rounded-none">
+        className="w-full bg-[#1E1E2E] border border-[rgba(28,31,58,0.14)] text-[#1c1f3a] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors rounded-none">
         <option value="">All topics</option>
         {topics.map(t => <option key={t}>{t}</option>)}
       </select>
@@ -825,20 +825,20 @@ function JournalScreen({ authFetch, onBack, onRetry }: {
       {loading ? <p className="text-[#8888A0] text-xs font-mono">Loading…</p>
         : mistakes.length === 0 ? <p className="text-[#8888A0] text-xs font-mono">No mistakes yet — keep quizzing!</p>
         : Object.entries(grouped).map(([topic, items]) => (
-          <div key={topic} className="p-4 space-y-3 border border-[rgba(255,255,255,0.14)] rounded-none bg-[#181826]">
+          <div key={topic} className="p-4 space-y-3 border border-[rgba(28,31,58,0.14)] rounded-none bg-[rgba(255,255,255,0.88)]">
             <div className="flex items-center justify-between">
               <p className="section-label green">{topic}</p>
-              <button onClick={() => onRetry(topic)} className="text-[10px] text-[#FF4D6D] font-bold uppercase tracking-wider hover:underline rounded-none">
+              <button onClick={() => onRetry(topic)} className="text-[10px] text-[#4A6FA5] font-bold uppercase tracking-wider hover:underline rounded-none">
                 Retry →
               </button>
             </div>
             {items.map(m => (
-              <div key={m.id} className="border-t border-[rgba(255,255,255,0.08)] pt-3 space-y-1 rounded-none">
-                <p className="text-xs text-[#E8E8F0] font-mono">{m.question}</p>
-                <p className="text-[10px] text-[#FF4D6D] font-mono">Your answer: {m.student_answer}</p>
-                <p className="text-[10px] text-[#39FF6A] font-mono">Correct: {m.correct_answer}</p>
+              <div key={m.id} className="border-t border-[rgba(28,31,58,0.08)] pt-3 space-y-1 rounded-none">
+                <p className="text-xs text-[#1c1f3a] font-mono">{m.question}</p>
+                <p className="text-[10px] text-[#4A6FA5] font-mono">Your answer: {m.student_answer}</p>
+                <p className="text-[10px] text-[#2a7d4f] font-mono">Correct: {m.correct_answer}</p>
                 {m.misconception && (
-                  <p className="text-[10px] text-[#F5A623] bg-[#F5A623]/5 border-l-2 border-[#F5A623] px-2 py-1 font-mono">⚠️ {m.misconception}</p>
+                  <p className="text-[10px] text-[#c47c2b] bg-[#c47c2b]/5 border-l-2 border-[#c47c2b] px-2 py-1 font-mono">⚠️ {m.misconception}</p>
                 )}
                 <p className="text-[10px] text-[#8888A0] font-mono">{m.confidence} · {new Date(m.created_at).toLocaleDateString()}</p>
               </div>
@@ -1187,7 +1187,7 @@ function QuizPageInner() {
       {phase !== "setup" && phase !== "journal" && (
         <div className="flex items-center gap-4 mb-5 text-sm border-b border-[#C0BAB0] pb-4 rounded-none">
           <XPCounter target={xp} />
-          <span className="font-mono font-black text-[#F5A623]">🔥 {streak} day streak</span>
+          <span className="font-mono font-black text-[#c47c2b]">🔥 {streak} day streak</span>
           {config && <span className="text-[#8888A0] text-xs font-mono uppercase tracking-wider">{config.mode} · {config.topic}</span>}
         </div>
       )}
@@ -1199,7 +1199,7 @@ function QuizPageInner() {
       {phase === "question" && config && (
         busy && !currentQ ? (
           <div className="flex items-center gap-3 text-[#8888A0] text-xs font-mono">
-            <div className="w-3 h-3 border border-[#FF4D6D] border-t-transparent animate-spin" />
+            <div className="w-3 h-3 border border-[#4A6FA5] border-t-transparent animate-spin" />
             Generating question…
           </div>
         ) : currentQ ? (

@@ -28,7 +28,7 @@ export default function ProfilePage() {
   }
 
   const topics = Object.entries(profile?.mastery ?? {}).sort((a, b) => a[1].score - b[1].score)
-  const inputCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#FF4D6D] transition-colors"
+  const inputCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1A1A1A] px-3 py-2.5 text-sm font-mono outline-none focus:border-[#4A6FA5] transition-colors"
 
   return (
     <AppShell>
@@ -74,7 +74,7 @@ export default function ProfilePage() {
           <div className="space-y-3">
             {topics.map(([topic, info]) => {
               const score = info.score
-              const color = score < 0.5 ? "#FF4D6D" : score < 0.7 ? "#F5A623" : "#39FF6A"
+              const color = score < 0.5 ? "#4A6FA5" : score < 0.7 ? "#c47c2b" : "#2a7d4f"
               return (
                 <div key={topic} className="flex items-center gap-3">
                   <span className="text-xs text-[#999] w-52 truncate flex-shrink-0">{topic}</span>

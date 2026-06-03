@@ -40,8 +40,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-[#2A2A2A]">
         <div className="flex items-center gap-2">
-          <span className="text-[#FF4D6D] font-mono font-black text-xs">■</span>
-          <span className="font-serif font-black text-white text-lg tracking-tight">PrepMeAI</span>
+          <span className="text-[#4A6FA5] font-mono font-black text-xs">■</span>
+          <span className="font-serif font-black text-[#1c1f3a] text-lg tracking-tight">PrepMeAI</span>
         </div>
         <p className="text-[#555] text-[10px] font-mono uppercase tracking-widest mt-0.5">Study Companion</p>
       </div>
@@ -49,12 +49,12 @@ export function Sidebar() {
       {/* Profile block */}
       <div className="px-4 py-3 border-b border-[#2A2A2A]">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 bg-[#FF4D6D] flex items-center justify-center text-xs font-black text-white flex-shrink-0"
+          <div className="h-8 w-8 bg-[#4A6FA5] flex items-center justify-center text-xs font-black text-white flex-shrink-0"
             style={{ boxShadow: "2px 2px 0 #fff" }}>
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">{profile?.name ?? "Student"}</p>
+            <p className="text-sm font-bold text-[#1c1f3a] truncate">{profile?.name ?? "Student"}</p>
             <p className="text-[10px] text-[#555] uppercase tracking-wider capitalize">{activeSubject}</p>
           </div>
         </div>
@@ -69,8 +69,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-100",
                 active
-                  ? "bg-[#FF4D6D] text-white font-bold"
-                  : "text-[#888] hover:text-white hover:bg-[#1A1A1A]"
+                  ? "bg-[#4A6FA5] text-white font-bold"
+                  : "text-[#888] hover:text-[#1c1f3a] hover:bg-[#1A1A1A]"
               )}>
               <Icon className="h-3.5 w-3.5 flex-shrink-0" />
               {name}
@@ -87,8 +87,8 @@ export function Sidebar() {
                 className={cn(
                   "flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all duration-100",
                   activeSubject === s
-                    ? "bg-[#39FF6A] text-[#0A0A0A]"
-                    : "bg-[#1A1A1A] text-[#555] hover:text-white border border-[#2A2A2A]"
+                    ? "bg-[#2a7d4f] text-[#0A0A0A]"
+                    : "bg-[#1A1A1A] text-[#555] hover:text-[#1c1f3a] border border-[#2A2A2A]"
                 )}>
                 {s}
               </button>
@@ -101,10 +101,10 @@ export function Sidebar() {
       <div className="px-4 py-4 border-t border-[#2A2A2A] space-y-3">
         <div className="border border-[#2A2A2A] px-3 py-2.5 bg-[#111]">
           <p className="section-label amber text-[10px]">Exam countdown</p>
-          <p className="font-mono text-xl font-black text-[#F5A623] mt-0.5">{daysLeft} <span className="text-xs font-normal text-[#555]">days</span></p>
+          <p className="font-mono text-xl font-black text-[#c47c2b] mt-0.5">{daysLeft} <span className="text-xs font-normal text-[#555]">days</span></p>
         </div>
         <button onClick={handleLogout}
-          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-[#555] hover:text-white hover:bg-[#1A1A1A] transition-colors uppercase tracking-wider font-bold">
+          className="flex w-full items-center gap-2 px-3 py-2 text-xs text-[#555] hover:text-[#1c1f3a] hover:bg-[#1A1A1A] transition-colors uppercase tracking-wider font-bold">
           <LogOut className="h-3.5 w-3.5" />
           Sign out
         </button>

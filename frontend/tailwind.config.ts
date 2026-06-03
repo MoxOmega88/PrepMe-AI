@@ -51,19 +51,24 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
         // Brutalist accent palette (unchanged)
-        pink:    "#FF4D6D",
-        green:   "#39FF6A",
-        amber:   "#F5A623",
+        pink:   "#e8533a",
+        green:  "#2a7d4f",
+        amber:  "#c47c2b",
         // Dark surface palette
         surface: {
-          0:    "#0D0D1A",
-          1:    "#12121E",
-          2:    "#181826",
-          3:    "#1E1E30",
-          DEFAULT: "#181826",
+          0: "#f5f0e8",
+          1: "rgba(255,255,255,0.90)",
+          2: "rgba(255,255,255,0.85)",
+          3: "rgba(255,255,255,0.75)",
+          DEFAULT: "rgba(255,255,255,0.85)",
         },
-        "brut-border": "rgba(255,255,255,0.10)",
-        "brut-border-strong": "rgba(255,255,255,0.18)",
+        "brut-border": "rgba(28,31,58,0.10)",
+        "brut-border-strong": "rgba(28,31,58,0.18)",
+        // Paper / stationery palette
+        paper: "#f5f0e8",
+        ink:   "#1c1f3a",
+        desk:  "#e8e3d9",
+        rule:  "#d4cfc4",
       },
       borderRadius: {
         lg: "0rem",
@@ -76,13 +81,13 @@ const config = {
         mono:  ['JetBrains Mono', 'monospace'],
       },
       boxShadow: {
-        brut:         "4px 4px 0 rgba(255,255,255,0.1)",
-        "brut-pink":  "0 0 16px rgba(255,77,109,0.45)",
-        "brut-green": "0 0 16px rgba(57,255,106,0.35)",
-        "brut-amber": "0 0 16px rgba(245,166,35,0.35)",
-        "brut-sm":    "2px 2px 0 rgba(255,255,255,0.08)",
-        "glass":      "0 4px 24px rgba(0,0,0,0.5)",
-        "glass-hover":"0 8px 32px rgba(0,0,0,0.6)",
+        brut:         "4px 4px 0 rgba(28,31,58,0.18)",
+        "brut-red":   "0 0 16px rgba(232,83,58,0.35)",
+        "brut-green": "0 0 16px rgba(42,125,79,0.25)",
+        "brut-amber": "0 0 16px rgba(196,124,43,0.25)",
+        "brut-sm":    "2px 2px 0 rgba(28,31,58,0.12)",
+        "glass":      "0 4px 24px rgba(28,31,58,0.12)",
+        "glass-hover":"0 8px 32px rgba(28,31,58,0.18)",
       },
       keyframes: {
         "accordion-down": {
@@ -104,7 +109,14 @@ const config = {
         "float": {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
-        }
+        },
+        "lid-open":   { from: { transform: "rotateX(0deg)" },    to: { transform: "rotateX(-110deg)" } },
+        "lid-close":  { from: { transform: "rotateX(-110deg)" }, to: { transform: "rotateX(0deg)" } },
+        "tool-rise":  { from: { transform: "translateY(12px)", opacity: "0" }, to: { transform: "translateY(0)", opacity: "1" } },
+        "sticky-drop": {
+          from: { transform: "translateY(-20px) rotate(var(--r, -2deg))", opacity: "0" },
+          to:   { transform: "translateY(0) rotate(var(--r, -2deg))",     opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -112,6 +124,10 @@ const config = {
         "pop-in": "pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
         "slide-right": "slide-right 0.5s ease-out forwards",
         "float": "float 6s ease-in-out infinite",
+        "lid-open":    "lid-open 0.35s var(--spring) forwards",
+        "lid-close":   "lid-close 0.28s ease-in forwards",
+        "tool-rise":   "tool-rise 0.3s var(--spring) forwards",
+        "sticky-drop": "sticky-drop 0.4s var(--spring) forwards",
       },
     },
   },
