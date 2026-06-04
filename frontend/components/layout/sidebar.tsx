@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
-  LayoutDashboard, Bot, FileQuestion, Calendar, BarChart3, User, LogOut,
+  LayoutDashboard, Bot, FileQuestion, Calendar, BarChart3, User, LogOut, ClipboardCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth"
@@ -14,6 +14,7 @@ const nav = [
   { name: "Quiz",          href: "/quiz",      icon: FileQuestion },
   { name: "Study Planner", href: "/planner",   icon: Calendar },
   { name: "Analytics",     href: "/analytics", icon: BarChart3 },
+  { name: "Exam",          href: "/exam",      icon: ClipboardCheck },
   { name: "Profile",       href: "/profile",   icon: User },
 ]
 

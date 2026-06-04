@@ -12,7 +12,8 @@ import {
   CalendarDays,
   LineChart,
   User,
-  Activity
+  Activity,
+  ClipboardCheck
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 
@@ -22,6 +23,7 @@ const nav = [
   { name: "Quiz",      href: "/quiz",       icon: PenTool },
   { name: "Planner",   href: "/planner",    icon: CalendarDays },
   { name: "Analytics", href: "/analytics",  icon: LineChart },
+  { name: "Exam",      href: "/exam",       icon: ClipboardCheck },
 ]
 
 const BriefcaseNavItem = ({
