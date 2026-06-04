@@ -282,11 +282,15 @@ function MisconceptionBox({ text, visible, onJournal }: {
 }
 
 // ── Setup Screen ───────────────────────────────────────────────────────────────
-function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
+function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, setEnhancedMode, blockedTopic, setBlockedTopic }: {
   subject: string
   onStart: (cfg: { topic: string; qType: QType; mode: Mode; count: number; difficulty: number }) => void
   onJournal: () => void
   initialTopic?: string
+  enhancedMode: boolean
+  setEnhancedMode: (v: boolean) => void
+  blockedTopic: {reason: string, weakPrereqs: string[]} | null
+  setBlockedTopic: (v: {reason: string, weakPrereqs: string[]} | null) => void
 }) {
   const topics = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
   const [topic, setTopic]       = useState(initialTopic && topics.includes(initialTopic) ? initialTopic : topics[0])
@@ -394,6 +398,50 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic }: {
                   />
                 </div>
               </div>
+              
+              {/* Enhanced Mode Toggle */}
+              <div className="mt-4 p-3 border border-[rgba(28,31,58,0.2)] bg-[rgba(74,111,165,0.05)]">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={enhancedMode}
+                    onChange={(e) => setEnhancedMode(e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  <div>
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#1c1f3a]">
+                      Enhanced Mode
+                    </span>
+                    <p className="text-[10px] text-[#666] mt-0.5">
+                      Non-repeating questions + prerequisite check
+                    </p>
+                  </div>
+                </label>
+              </div>
+              
+              {/* Blocked Topic Warning */}
+              {blockedTopic && (
+                <div className="mt-4 p-4 bg-yellow-100 border-2 border-yellow-600">
+                  <p className="font-bold text-sm mb-2">⚠️ Prerequisites needed</p>
+                  <p className="text-sm mb-3">{blockedTopic.reason}</p>
+                  <button
+                    onClick={() => {
+                      // Switch to first weak prerequisite
+                      if (blockedTopic.weakPrereqs.length > 0) {
+                        const topics = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
+                        const firstPrereq = blockedTopic.weakPrereqs[0]
+                        if (topics.includes(firstPrereq)) {
+                          setTopic(firstPrereq)
+                          setBlockedTopic(null)
+                        }
+                      }
+                    }}
+                    className="px-4 py-2 bg-yellow-600 text-white font-bold text-xs uppercase"
+                  >
+                    Got it, quiz me on prerequisites first
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           
@@ -1011,6 +1059,11 @@ function QuizPageInner() {
   const [config, setConfig]         = useState<{ topic: string; qType: QType; mode: Mode; count: number; difficulty: number } | null>(null)
   const [questions, setQuestions]   = useState<QuizQuestion[]>([])
   const [qIdx, setQIdx]             = useState(0)
+  
+  // Enhanced mode state
+  const [enhancedMode, setEnhancedMode] = useState(false)
+  const [questionHistory, setQuestionHistory] = useState<Array<{text: string, embedding: number[]}>>([])
+  const [blockedTopic, setBlockedTopic] = useState<{reason: string, weakPrereqs: string[]} | null>(null)
   const [attempts, setAttempts]     = useState<AttemptRecord[]>([])
   const [prevQs, setPrevQs]         = useState<string[]>([])
   const [curDiff, setCurDiff]       = useState(0.5)
@@ -1093,18 +1146,57 @@ function QuizPageInner() {
     const qType = cfg.qType === "mixed" ? QTYPES[index % QTYPES.length] : cfg.qType
     console.log(`[quiz] Q${index + 1} difficulty=${difficulty} type=${qType}`)
     try {
-      const res = await authFetch("/api/quiz/generate-question", {
-        method: "POST",
-        body: JSON.stringify({
-          topic: cfg.topic, difficulty, question_type: qType,
-          question_index: index, subject, previous_questions: pqs,
-        }),
-      })
-      if (!res.ok) return null
-      const data = await res.json()
-      return { ...data, topic: cfg.topic }
+      if (enhancedMode) {
+        // Use enhanced endpoint
+        const res = await authFetch("/api/quiz/generate-question-enhanced", {
+          method: "POST",
+          body: JSON.stringify({
+            topic: cfg.topic,
+            difficulty,
+            question_history: questionHistory,
+            mastery_scores: profile?.mastery || {},
+            class_level: 8,
+            subject,
+            retry_context: null
+          }),
+        })
+        if (!res.ok) return null
+        const data = await res.json()
+        
+        // Check if blocked
+        if (data.blocked) {
+          setBlockedTopic({
+            reason: data.reason,
+            weakPrereqs: data.weak_prerequisites || []
+          })
+          setPhase("setup")
+          return null
+        }
+        
+        // Add to history
+        if (data.embedding) {
+          setQuestionHistory(prev => [...prev, {
+            text: data.question,
+            embedding: data.embedding
+          }])
+        }
+        
+        return { ...data, topic: cfg.topic }
+      } else {
+        // Use standard endpoint
+        const res = await authFetch("/api/quiz/generate-question", {
+          method: "POST",
+          body: JSON.stringify({
+            topic: cfg.topic, difficulty, question_type: qType,
+            question_index: index, subject, previous_questions: pqs,
+          }),
+        })
+        if (!res.ok) return null
+        const data = await res.json()
+        return { ...data, topic: cfg.topic }
+      }
     } catch { return null }
-  }, [authFetch, subject])
+  }, [authFetch, subject, enhancedMode, questionHistory, profile, setBlockedTopic, setPhase])
 
   const handleStart = async (cfg: { topic: string; qType: QType; mode: Mode; count: number; difficulty: number }) => {
     setConfig(cfg); setAttempts([]); setQIdx(0); setTotalXP(0)
@@ -1341,7 +1433,16 @@ function QuizPageInner() {
       )}
 
       {phase === "setup" && (
-        <SetupScreen subject={subject} onStart={handleStart} onJournal={() => setPhase("journal")} initialTopic={urlTopic ?? undefined} />
+        <SetupScreen 
+          subject={subject} 
+          onStart={handleStart} 
+          onJournal={() => setPhase("journal")} 
+          initialTopic={urlTopic ?? undefined}
+          enhancedMode={enhancedMode}
+          setEnhancedMode={setEnhancedMode}
+          blockedTopic={blockedTopic}
+          setBlockedTopic={setBlockedTopic}
+        />
       )}
 
       {phase === "question" && config && (

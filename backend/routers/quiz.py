@@ -791,3 +791,112 @@ async def get_mistakes(
         }
         for m in rows
     ]
+
+
+# ── Enhanced Question Generation ───────────────────────────────────────────────
+from services.question_enhancer import (
+    get_question_fingerprint,
+    is_question_duplicate,
+    check_prerequisites,
+    generate_retry_question
+)
+
+
+class EnhancedQuestionRequest(BaseModel):
+    topic: str
+    difficulty: float = 0.5
+    question_history: list[dict] = []  # [{text, embedding}]
+    mastery_scores: dict = {}          # {topic: score}
+    class_level: int = 8
+    subject: Optional[str] = None
+    retry_context: Optional[dict] = None  # {original_question, student_wrong_answer, correct_answer}
+
+
+@router.post("/generate-question-enhanced")
+async def generate_question_enhanced(
+    req: EnhancedQuestionRequest,
+    current_student: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    subject = (req.subject or current_student.subject or "science").lower()
+    pdf_path = _require_pdf(subject)
+    
+    # ── RETRY MODE: Generate question targeting misconception ─────────────────
+    if req.retry_context:
+        ctx = req.retry_context
+        chunks = retrieve(req.topic, pdf_path, top_k=10, topic=req.topic, subject=subject)
+        chunk_texts = [c["text"] for c in chunks]
+        
+        retry_q = generate_retry_question(
+            ctx["original_question"],
+            ctx["student_wrong_answer"],
+            ctx["correct_answer"],
+            req.topic,
+            chunk_texts
+        )
+        
+        # Add embedding
+        retry_q["embedding"] = get_question_fingerprint(retry_q["question"])
+        retry_q["difficulty"] = req.difficulty
+        retry_q["topic"] = req.topic
+        retry_q["sources"] = []
+        retry_q["blocked"] = False
+        retry_q["may_be_similar"] = False
+        
+        return retry_q
+    
+    # ── PREREQUISITE CHECK ─────────────────────────────────────────────────────
+    prereq_result = check_prerequisites(
+        req.topic,
+        req.class_level,
+        subject,
+        req.mastery_scores
+    )
+    
+    if not prereq_result["can_proceed"]:
+        return {
+            "blocked": True,
+            "reason": prereq_result["suggested_action"],
+            "weak_prerequisites": prereq_result["weak_prerequisites"]
+        }
+    
+    # ── GENERATE QUESTION WITH DUPLICATE CHECK ────────────────────────────────
+    max_retries = 3
+    last_question = None
+    
+    for attempt in range(max_retries):
+        # Call existing generate_question logic
+        q_req = QuestionRequest(
+            topic=req.topic,
+            difficulty=req.difficulty,
+            question_type="mixed",
+            question_index=attempt,
+            subject=subject,
+            previous_questions=[h["text"] for h in req.question_history]
+        )
+        
+        question_data = await create_question(q_req, current_student, db)
+        last_question = question_data
+        
+        # Check for duplicates
+        is_dup = is_question_duplicate(
+            question_data.get("question", ""),
+            req.question_history,
+            threshold=0.82
+        )
+        
+        if not is_dup:
+            break
+        
+        print(f"[enhanced] attempt {attempt + 1}: duplicate detected, retrying...")
+    
+    # ── ADD EMBEDDING AND FLAGS ────────────────────────────────────────────────
+    q_text = last_question.get("question", "")
+    embedding = get_question_fingerprint(q_text)
+    
+    return {
+        **last_question,
+        "embedding": embedding,
+        "may_be_similar": is_dup,  # True if still duplicate after 3 tries
+        "blocked": False
+    }
