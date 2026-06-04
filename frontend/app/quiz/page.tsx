@@ -650,41 +650,114 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
     )
   }
 
+  // For MCQ and True/False questions - show answer comparison
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-slide-up">
       <div className="relative">
         <XPFloat amount={xpEarned} visible={showXP} />
-            const isCorrect = letter === String(q.correct).toUpperCase()
-            const isStudent = letter === studentAnswer.toUpperCase()
-            return (
-              <div key={i} className={cn("px-4 py-2.5 border text-xs font-mono transition-all rounded-none",
-                isCorrect ? "border-[#2a7d4f] bg-[#2a7d4f]/10 text-[#2a7d4f] font-bold"
-                  : isStudent && !isCorrect ? "border-[#4A6FA5] bg-[#4A6FA5]/10 text-[#4A6FA5]"
-                  : "border-[rgba(255,255,255,0.1)] text-[#8888A0]")}>
-                <span className="font-black mr-2">{letter})</span>
-                {opt.replace(/^[A-D]\)\s*/,"")}
-                {isCorrect && " ✓"}
-              </div>
-            )
-          })}
-        </div>
-      )}
+        
+        {/* Show answer comparison for MCQ/TrueFalse */}
+        {(q.type === "mcq" || q.type === "truefalse") && q.options && (
+          <div className="space-y-2">
+            {q.options.map((opt, i) => {
+              const letter = String.fromCharCode(65 + i);
+              const isCorrect = (q.type === "mcq" 
+                ? letter === String(q.correct).toUpperCase()
+                : opt.toLowerCase() === String(q.correct).toLowerCase());
+              const isStudent = letter === studentAnswer?.toUpperCase() || opt === studentAnswer;
+              
+              return (
+                <div 
+                  key={i} 
+                  className={cn(
+                    "px-4 py-2.5 border text-xs font-mono transition-all rounded-none",
+                    isCorrect 
+                      ? "border-[#2a7d4f] bg-[#2a7d4f]/10 text-[#2a7d4f] font-bold"
+                      : isStudent && !isCorrect 
+                      ? "border-[#4A6FA5] bg-[#4A6FA5]/10 text-[#4A6FA5]"
+                      : "border-[rgba(28,31,58,0.15)] text-[#8888A0]"
+                  )}
+                >
+                  <span className="font-black mr-2">{letter})</span>
+                  {opt.replace(/^[A-D]\)\s*/, "")}
+                  {isCorrect && " ✓"}
+                  {isStudent && !isCorrect && " ✗"}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
-      {(q.type === "short" || q.type === "fillblank") && assessment.model_answer && (
-        <div className="mt-6 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
-          <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2">Model Answer</p>
-          <p className="text-xl text-[#c0392b] red-pen">{assessment.model_answer}</p>
-        </div>
-      )}
+        {/* Show student answer for other question types */}
+        {(q.type === "fillblank" || q.type === "short") && (
+          <div className="mt-4 p-4 border-2 border-dashed border-[rgba(28,31,58,0.15)]">
+            <p className="font-mono text-[10px] text-[#1c1f3a] uppercase tracking-widest font-bold mb-2">Your Answer:</p>
+            <p className="text-lg text-[#1c1f3a] font-mono">{studentAnswer || "(no answer)"}</p>
+          </div>
+        )}
+      </div>
 
-      {q.explanation && (
-        <div className="mt-6 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+      <ResultBanner 
+        correctness={assessment.correctness}
+        confidence={confidence}
+        xpEarned={xpEarned}
+        diffDelta={0}
+      />
+
+      <div className="exam-paper space-y-6">
+        <div className="border-l-4 border-[#c0392b] pl-4">
           <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
-            <span className="text-lg">✎</span> Teacher's Note
+            <span className="text-lg">✎</span> Teacher's Feedback
           </p>
-          <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{q.explanation}</p>
+          <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
         </div>
-      )}
+
+        {assessment.key_points_covered && assessment.key_points_covered.length > 0 && (
+          <div className="pt-4">
+            <p className="font-mono text-[10px] text-[#2a7d4f] uppercase tracking-widest font-bold mb-2">✓ Key Points Covered:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {assessment.key_points_covered.map((pt, i) => (
+                <li key={i} className="text-sm text-[#1c1f3a] font-mono">{pt}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {assessment.key_points_missed && assessment.key_points_missed.length > 0 && (
+          <div className="pt-4">
+            <p className="font-mono text-[10px] text-[#4A6FA5] uppercase tracking-widest font-bold mb-2">⚠ Points to Review:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {assessment.key_points_missed.map((pt, i) => (
+                <li key={i} className="text-sm text-[#1c1f3a] font-mono">{pt}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {(q.type === "short" || q.type === "fillblank") && assessment.model_answer && (
+          <div className="pt-4 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+            <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2">Model Answer</p>
+            <p className="text-lg text-[#1c1f3a] leading-relaxed">{assessment.model_answer}</p>
+          </div>
+        )}
+
+        {q.explanation && (
+          <div className="pt-4 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
+            <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
+              <span className="text-lg">✎</span> Detailed Explanation
+            </p>
+            <p className="text-lg text-[#1c1f3a] leading-relaxed">{q.explanation}</p>
+          </div>
+        )}
+
+        {showMisconception && assessment.misconception && (
+          <MisconceptionBox 
+            text={assessment.misconception}
+            visible={showMisconception}
+            onJournal={onJournal}
+          />
+        )}
+      </div>
 
       <div className="text-right mt-8 pt-6 border-t-2 border-dashed border-[rgba(28,31,58,0.15)]">
         <button onClick={onNext} className="font-mono font-black text-lg text-[#1c1f3a] border-2 border-[#1c1f3a] px-8 py-3 uppercase tracking-widest hover:bg-[#1c1f3a] hover:text-[#fdfcf9] transition-colors rounded-none shadow-[4px_4px_0_rgba(28,31,58,0.15)]">

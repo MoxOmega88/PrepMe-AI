@@ -17,7 +17,7 @@ import {
 import { useAuth } from "@/lib/auth"
 
 const nav = [
-  { name: "Dashboard", href: "/",          icon: LayoutDashboard },
+  { name: "Dashboard", href: "/home",     icon: LayoutDashboard },
   { name: "AI Tutor",  href: "/tutor",      icon: Sparkles },
   { name: "Quiz",      href: "/quiz",       icon: PenTool },
   { name: "Planner",   href: "/planner",    icon: CalendarDays },

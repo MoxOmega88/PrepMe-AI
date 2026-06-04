@@ -5,7 +5,7 @@ import { AuthGuard } from "@/components/auth/auth-guard"
 import { TopNav } from "@/components/layout/topnav"
 import { SubjectSwitcher } from "@/components/layout/subject-switcher"
 
-const SUBJECT_BAR_PAGES = ["/", "/tutor", "/quiz", "/planner", "/analytics"]
+const SUBJECT_BAR_PAGES = ["/home", "/tutor", "/quiz", "/planner", "/analytics"]
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

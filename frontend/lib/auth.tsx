@@ -1,6 +1,9 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
+import type { AppSubject } from "@/lib/subjects"
+import { isApiSubject, isPlaceholderSubject } from "@/lib/subjects"
+import { buildPlaceholderProfile, getMockResponse } from "@/lib/subject-mocks"
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
@@ -8,7 +11,7 @@ export interface Profile {
   id: string
   name: string
   email: string
-  subject: "science" | "maths"
+  subject: AppSubject
   exam_date: string | null
   days_to_exam: number
   daily_hours: number
@@ -25,7 +28,7 @@ interface AuthCtx {
   signup: (name: string, email: string, password: string, subject: string) => Promise<void>
   logout: () => void
   refreshProfile: () => Promise<void>
-  setSubject: (subject: "science" | "maths") => Promise<void>
+  setSubject: (subject: AppSubject) => Promise<void>
   authFetch: (path: string, init?: RequestInit) => Promise<Response>
 }
 
@@ -38,7 +41,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [subjectVersion, setSubjectVersion] = useState(0)
 
   const authFetch = useCallback(async (path: string, init: RequestInit = {}) => {
-    const t = token || (typeof window !== "undefined" ? localStorage.getItem("token") : null)
+    const t =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("prepme_token") || localStorage.getItem("token")
+        : null)
+    const sub = profile?.subject ?? "science"
+    if (isPlaceholderSubject(sub)) {
+      const mock = getMockResponse(path, init, sub)
+      if (mock) return mock
+    }
     return fetch(`${API}${path}`, {
       ...init,
       headers: {
@@ -47,26 +59,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...(init.headers || {}),
       },
     })
-  }, [token])
+  }, [token, profile?.subject])
 
   const fetchProfile = useCallback(async (t: string) => {
-    const res = await fetch(`${API}/api/profile/`, {
-      headers: { Authorization: `Bearer ${t}` },
-    })
-    if (res.ok) {
-      const data = await res.json()
-      setProfile(data)
+    try {
+      const res = await fetch(`${API}/api/profile/`, {
+        headers: { Authorization: `Bearer ${t}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const active =
+          typeof window !== "undefined"
+            ? localStorage.getItem("active_subject")
+            : null
+        if (active && isPlaceholderSubject(active)) {
+          setProfile(buildPlaceholderProfile(data, active as AppSubject))
+        } else {
+          setProfile(data)
+        }
+      }
+    } catch {
+      // Backend offline or unreachable — avoid uncaught promise rejections
     }
   }, [])
 
   useEffect(() => {
-    const stored = localStorage.getItem("token")
+    const stored =
+      localStorage.getItem("prepme_token") || localStorage.getItem("token")
     if (stored) {
-      // Unblock the guard immediately — token is known synchronously
       setToken(stored)
       setLoading(false)
-      // Fetch profile in the background; pages will re-render when it arrives
-      fetchProfile(stored)
+      void fetchProfile(stored)
     } else {
       setLoading(false)
     }
@@ -84,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const { access_token } = await res.json()
     localStorage.setItem("token", access_token)
+    localStorage.setItem("prepme_token", access_token)
     setToken(access_token)
     await fetchProfile(access_token)
   }
@@ -100,26 +124,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const { access_token } = await res.json()
     localStorage.setItem("token", access_token)
+    localStorage.setItem("prepme_token", access_token)
     setToken(access_token)
     await fetchProfile(access_token)
   }
 
   const logout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("prepme_token")
+    localStorage.removeItem("prepme_user")
+    document.cookie = "prepme_token=; path=/; max-age=0"
     setToken(null)
     setProfile(null)
     setSubjectVersion(0)
   }
 
   const refreshProfile = useCallback(async () => {
-    const t = token || (typeof window !== "undefined" ? localStorage.getItem("token") : null)
+    const t =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("prepme_token") || localStorage.getItem("token")
+        : null)
     if (t) await fetchProfile(t)
   }, [token, fetchProfile])
 
-  const setSubject = useCallback(async (subject: "science" | "maths") => {
+  const setSubject = useCallback(async (subject: AppSubject) => {
     if (profile?.subject === subject) return
-    const res = await authFetch("/api/profile/", {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("active_subject", subject)
+    }
+    if (isPlaceholderSubject(subject)) {
+      setProfile((p) => buildPlaceholderProfile(p, subject))
+      setSubjectVersion((v) => v + 1)
+      return
+    }
+    if (!isApiSubject(subject)) return
+    const res = await fetch(`${API}/api/profile/`, {
       method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token || localStorage.getItem("prepme_token") || localStorage.getItem("token")
+          ? {
+              Authorization: `Bearer ${
+                token ||
+                localStorage.getItem("prepme_token") ||
+                localStorage.getItem("token")
+              }`,
+            }
+          : {}),
+      },
       body: JSON.stringify({ subject }),
     })
     if (!res.ok) {
@@ -127,8 +180,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(err.detail || "Failed to switch subject")
     }
     await refreshProfile()
-    setSubjectVersion(v => v + 1)
-  }, [profile?.subject, authFetch, refreshProfile])
+    setSubjectVersion((v) => v + 1)
+  }, [profile, token, refreshProfile])
 
   return (
     <Ctx.Provider value={{

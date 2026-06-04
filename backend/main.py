@@ -21,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from routers import health, tutor, quiz, auth, profile, planner, analytics
+from routers.exam import router as exam_router
 from db.database import init_db, close_db, engine
 from sqlalchemy import text
 
@@ -94,6 +95,7 @@ app.include_router(planner.router)
 app.include_router(analytics.router)
 app.include_router(tutor.router)
 app.include_router(quiz.router)
+app.include_router(exam_router)
 
 
 @app.get("/")
