@@ -52,13 +52,52 @@ MATHS_TOPICS = [
 ]
 MATHS_WEIGHTAGE = {t: round(1 / len(MATHS_TOPICS), 3) for t in MATHS_TOPICS}
 
+SOCIAL_TOPICS = [
+    "Natural Resources and Their Conservation",
+    "Reshaping India's Political Map",
+    "The Rise of the Marathas",
+    "The Colonial Era in India",
+    "Universal Franchise and India's Electoral System",
+    "The Parliamentary System: Legislature and Executive",
+    "Factors of Production",
+]
+SOCIAL_WEIGHTAGE = {t: round(1 / len(SOCIAL_TOPICS), 3) for t in SOCIAL_TOPICS}
+
+ENGLISH_TOPICS = [
+    "The Wit that Won Hearts",
+    "A Concrete Example",
+    "Wisdom Paves the Way",
+    "A Tale of Valour: Major Somnath Sharma and the Battle of Badgam",
+    "Somebody's Mother",
+    "Verghese Kurien: I Too Had A Dream",
+    "The Case of the Fifth Word",
+    "The Magic Brush of Dreams",
+    "Spectacular Wonders",
+    "The Cherry Tree",
+    "Harvest Hymn",
+    "Waiting for the Rain",
+    "Feathered Friend",
+    "Magnifying Glass",
+    "Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science",
+]
+ENGLISH_WEIGHTAGE = {t: round(1 / len(ENGLISH_TOPICS), 3) for t in ENGLISH_TOPICS}
+
 SESSION_MINUTES = 45
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _weightage_for(user: User) -> dict:
-    return SCIENCE_WEIGHTAGE if user.subject == "science" else MATHS_WEIGHTAGE
+    subject = (user.subject or "science").lower()
+    if "science" in subject:
+        return SCIENCE_WEIGHTAGE
+    elif "math" in subject:
+        return MATHS_WEIGHTAGE
+    elif "social" in subject:
+        return SOCIAL_WEIGHTAGE
+    elif "english" in subject:
+        return ENGLISH_WEIGHTAGE
+    return SCIENCE_WEIGHTAGE
 
 
 def _subject_topics(user: User) -> Set[str]:

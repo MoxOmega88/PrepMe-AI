@@ -2,6 +2,7 @@
 RAG (Retrieval-Augmented Generation) Service
 Handles PDF ingestion, embedding, retrieval, and LLM generation
 """
+import os
 import re
 import json
 import hashlib
@@ -18,8 +19,45 @@ _index_cache: Dict[str, Tuple[List[Dict], Optional[np.ndarray]]] = {}
 _embedder = None
 PAGE_OFFSET = 20  # skip first 20 pages (foreword, TOC, committee listings)
 
+# ── Subject → PDF File Mapping ────────────────────────────────────────────────
+SUBJECT_PDF_MAP = {
+    "science":        "ncert_science_8.pdf",
+    "maths":          "ncert_maths_8.pdf",
+    "mathematics":    "ncert_maths_8.pdf",
+    "social":         "ncert_social_8.pdf",
+    "social science": "ncert_social_8.pdf",
+    "social studies": "ncert_social_8.pdf",
+    "social_studies": "ncert_social_8.pdf",
+    "english":        "ncert_english_8.pdf",
+}
+
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+def _resolve_pdf_path(subject: str = "science") -> str:
+    """Resolve subject name to PDF file path."""
+    subject_key = subject.lower().strip()
+    pdf_filename = SUBJECT_PDF_MAP.get(subject_key, "ncert_science_8.pdf")
+    
+    # Check if it's an absolute path
+    if os.path.isabs(pdf_filename):
+        pdf_path = pdf_filename
+    else:
+        # Try project root first
+        pdf_path = os.path.join(_PROJECT_ROOT, pdf_filename)
+        if not os.path.exists(pdf_path):
+            # Try backend folder
+            backend_path = os.path.join(_PROJECT_ROOT, "backend", pdf_filename)
+            if os.path.exists(backend_path):
+                pdf_path = backend_path
+    
+    if not os.path.exists(pdf_path):
+        print(f"[rag] WARNING: PDF not found for subject '{subject}' at {pdf_path}")
+    
+    return pdf_path
+
 # ── Topic → Chapter number mapping ────────────────────────────────────────────
 TOPIC_TO_CHAPTER: Dict[str, int] = {
+    # NCERT Class 8 Science
     "Exploring the Investigative World of Science": 1,
     "The Invisible Living World: Beyond Our Naked Eye": 2,
     "Health: The Ultimate Treasure": 3,
@@ -52,6 +90,30 @@ TOPIC_TO_CHAPTER: Dict[str, int] = {
     "Direct & Inverse Proportions": 12,
     "Factorisation": 13,
     "Introduction to Graphs": 14,
+    # NCERT Class 8 Social Science
+    "Natural Resources and Their Conservation": 1,
+    "Reshaping India's Political Map": 2,
+    "The Rise of the Marathas": 3,
+    "The Colonial Era in India": 4,
+    "Universal Franchise and India's Electoral System": 5,
+    "The Parliamentary System: Legislature and Executive": 6,
+    "Factors of Production": 7,
+    # NCERT Class 8 English
+    "The Wit that Won Hearts": 1,
+    "A Concrete Example": 2,
+    "Wisdom Paves the Way": 3,
+    "A Tale of Valour: Major Somnath Sharma and the Battle of Badgam": 4,
+    "Somebody's Mother": 5,
+    "Verghese Kurien: I Too Had A Dream": 6,
+    "The Case of the Fifth Word": 7,
+    "The Magic Brush of Dreams": 8,
+    "Spectacular Wonders": 9,
+    "The Cherry Tree": 10,
+    "Harvest Hymn": 11,
+    "Waiting for the Rain": 12,
+    "Feathered Friend": 13,
+    "Magnifying Glass": 14,
+    "Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science": 15,
 }
 
 # Strict chapter header: "Chapter 11 —" or "Chapter 11\n" on the same page
@@ -227,7 +289,7 @@ def _filter_maths_chunks(chunks: List[Dict], embs: Optional[np.ndarray]) -> Tupl
 
 def retrieve(
     query: str,
-    pdf_path: str,
+    pdf_path: str = None,
     top_k: int = 5,
     topic: Optional[str] = None,
     subject: Optional[str] = None,
@@ -236,8 +298,23 @@ def retrieve(
     Hybrid retrieval: 70% dense + 30% BM25.
     If `topic` is provided and maps to a known chapter, restricts search to
     that chapter's chunks only — fixing the wrong-chapter retrieval problem.
+    
+    Args:
+        query: Search query
+        pdf_path: Legacy parameter, will be overridden by subject if provided
+        top_k: Number of chunks to return
+        topic: Topic name (maps to chapter)
+        subject: Subject name (science/maths/social/english) - preferred over pdf_path
     """
-    all_chunks, all_embs = get_or_build_index(pdf_path)
+    # Resolve PDF path from subject if provided, otherwise use pdf_path
+    if subject:
+        resolved_pdf_path = _resolve_pdf_path(subject)
+    elif pdf_path:
+        resolved_pdf_path = pdf_path
+    else:
+        resolved_pdf_path = _resolve_pdf_path("science")
+    
+    all_chunks, all_embs = get_or_build_index(resolved_pdf_path)
     if not all_chunks:
         return []
 
@@ -260,7 +337,9 @@ def retrieve(
     else:
         chunks, embs = all_chunks, all_embs
 
-    if subject == "maths" or _is_maths_pdf(pdf_path):
+    if subject and ("math" in subject.lower()):
+        chunks, embs = _filter_maths_chunks(chunks, embs)
+    elif pdf_path and _is_maths_pdf(resolved_pdf_path):
         chunks, embs = _filter_maths_chunks(chunks, embs)
 
     # ── Hybrid scoring ────────────────────────────────────────────────────────
@@ -318,10 +397,18 @@ def get_depth_instructions(mastery_score: float) -> str:
         )
 
 
-def rag_answer(question: str, pdf_path: str, mastery_score: float = 0.5,
-               topic: Optional[str] = None) -> Dict:
-    """RAG pipeline: retrieve relevant chunks and generate answer."""
-    chunks = retrieve(question, pdf_path, top_k=5, topic=topic)
+def rag_answer(question: str, pdf_path: str = None, mastery_score: float = 0.5,
+               topic: Optional[str] = None, subject: str = "science") -> Dict:
+    """RAG pipeline: retrieve relevant chunks and generate answer.
+    
+    Args:
+        question: Student's question
+        pdf_path: Legacy parameter (will be overridden by subject)
+        mastery_score: Student's mastery level (0.0-1.0)
+        topic: Specific topic/chapter name
+        subject: Subject name (science/maths/social/english)
+    """
+    chunks = retrieve(question, pdf_path=pdf_path, top_k=5, topic=topic, subject=subject)
 
     if not chunks:
         return {
@@ -334,8 +421,16 @@ def rag_answer(question: str, pdf_path: str, mastery_score: float = 0.5,
     context = "\n\n".join([f"[Page {c['pages']}]\n{c['text']}" for c in chunks])
     depth_inst = get_depth_instructions(mastery_score)
 
-    # Infer subject label from path for the system prompt
-    subject_label = "Maths" if "maths" in pdf_path.lower() else "Science"
+    # Map subject to display label
+    subject_labels = {
+        "science": "Science",
+        "maths": "Mathematics", 
+        "mathematics": "Mathematics",
+        "social": "Social Science",
+        "social science": "Social Science",
+        "english": "English"
+    }
+    subject_label = subject_labels.get(subject.lower(), "Science")
 
     # Generate answer
     messages = [
@@ -364,10 +459,20 @@ def rag_answer(question: str, pdf_path: str, mastery_score: float = 0.5,
     }
 
 
-def assess_answer(question: str, student_answer: str, pdf_path: str,
-                  difficulty_level: float, topic: Optional[str] = None) -> Dict:
-    """Assess student's answer using RAG + LLM with semantic evaluation."""
-    chunks = retrieve(question, pdf_path, top_k=3, topic=topic)
+def assess_answer(question: str, student_answer: str, pdf_path: str = None,
+                  difficulty_level: float = 0.5, topic: Optional[str] = None,
+                  subject: str = "science") -> Dict:
+    """Assess student's answer using RAG + LLM with semantic evaluation.
+    
+    Args:
+        question: The question asked
+        student_answer: Student's response
+        pdf_path: Legacy parameter (will be overridden by subject)
+        difficulty_level: Question difficulty (0.0-1.0)
+        topic: Specific topic/chapter
+        subject: Subject name (science/maths/social/english)
+    """
+    chunks = retrieve(question, pdf_path=pdf_path, top_k=3, topic=topic, subject=subject)
     context = "\n\n".join([c["text"] for c in chunks]) if chunks else "No context found"
     
     # Difficulty-based rubric

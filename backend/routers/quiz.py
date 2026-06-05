@@ -59,12 +59,27 @@ MATHS_DEPENDENCIES = {
     "Exponents and Powers": ["Squares and Square Roots"],
 }
 
+SOCIAL_DEPENDENCIES = {
+    "The Rise of the Marathas": ["Reshaping India's Political Map"],
+    "The Colonial Era in India": ["The Rise of the Marathas"],
+    "The Parliamentary System: Legislature and Executive": 
+      ["Universal Franchise and India's Electoral System"],
+}
+
+ENGLISH_DEPENDENCIES = {
+    # English chapters are mostly independent literary pieces with minimal prerequisites
+}
+
 
 # ── PDF resolution ─────────────────────────────────────────────────────────────
 def _resolve_pdf(subject: str) -> str:
-    subject = subject.lower()
-    if subject == "maths":
+    s = subject.lower().strip()
+    if s in ("maths", "mathematics"):
         raw = os.getenv("PDF_MATHS_PATH", "ncert_maths_8.pdf")
+    elif s in ("social", "social science", "social studies", "social_studies"):
+        raw = os.getenv("PDF_SOCIAL_PATH", "ncert_social_8.pdf")
+    elif s == "english":
+        raw = os.getenv("PDF_ENGLISH_PATH", "ncert_english_8.pdf")
     else:
         raw = os.getenv("PDF_SCIENCE_PATH", "ncert_science_8.pdf")
 
@@ -73,7 +88,7 @@ def _resolve_pdf(subject: str) -> str:
     else:
         resolved = os.path.abspath(os.path.join(_PROJECT_ROOT, raw))
 
-    print(f"[quiz] subject={subject} pdf_path={resolved} exists={os.path.exists(resolved)}")
+    print(f"[quiz] subject={s} pdf_path={resolved} exists={os.path.exists(resolved)}")
     return resolved
 
 
@@ -365,13 +380,13 @@ async def create_question(
             f"→ {len(chunks)} chunks retrieved"
         )
         if not chunks:
-            if subject == "maths":
+            if subject in ("maths", "mathematics"):
                 raise HTTPException(
                     status_code=404,
                     detail=f"No maths textbook content found for topic '{req.topic}'. "
                            "Check that ncert_maths_8.pdf is indexed and the topic name matches a chapter.",
                 )
-            raise HTTPException(status_code=404, detail="No content found for this topic in the textbook")
+            raise HTTPException(status_code=404, detail=f"No content found for topic '{req.topic}' in the {subject} textbook")
 
         def _page_start(c: dict) -> int:
             try:
@@ -482,7 +497,7 @@ async def assess_student_answer(
             }
         else:
             difficulty = max(0.0, min(1.0, req.difficulty))
-            result = assess_answer(req.question, req.answer, pdf_path, difficulty, topic=req.topic)
+            result = assess_answer(req.question, req.answer, pdf_path, difficulty, topic=req.topic, subject=subject)
 
             # Add misconception for wrong short answers (score < 0.5)
             is_wrong = result.get("overall_score", 1.0) < 0.5
@@ -542,6 +557,10 @@ async def get_prerequisites(
         deps_map = SCIENCE_DEPENDENCIES
     elif "math" in subject_lower:
         deps_map = MATHS_DEPENDENCIES
+    elif "social" in subject_lower:
+        deps_map = SOCIAL_DEPENDENCIES
+    elif "english" in subject_lower:
+        deps_map = ENGLISH_DEPENDENCIES
     else:
         deps_map = {}
 
@@ -575,13 +594,19 @@ async def get_exam_prediction(
     current_student: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from routers.planner import SCIENCE_WEIGHTAGE, MATHS_WEIGHTAGE
+    from routers.planner import SCIENCE_WEIGHTAGE, MATHS_WEIGHTAGE, SOCIAL_WEIGHTAGE, ENGLISH_WEIGHTAGE
     
     subject = (current_student.subject or "science").lower()
     if "science" in subject:
         subject_topics = set(SCIENCE_WEIGHTAGE.keys())
-    else:
+    elif "math" in subject:
         subject_topics = set(MATHS_WEIGHTAGE.keys())
+    elif "social" in subject:
+        subject_topics = set(SOCIAL_WEIGHTAGE.keys())
+    elif "english" in subject:
+        subject_topics = set(ENGLISH_WEIGHTAGE.keys())
+    else:
+        subject_topics = set(SCIENCE_WEIGHTAGE.keys())
 
     # Get last 30 QuizAttempts for student's active subject
     stmt = select(QuizAttempt).where(
@@ -818,11 +843,16 @@ async def generate_question_enhanced(
     current_student: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    print(f"[enhanced] Request received: topic={req.topic}, enhanced_mode=True")
+    print(f"[enhanced] Question history length: {len(req.question_history)}")
+    print(f"[enhanced] Mastery scores: {req.mastery_scores}")
+    
     subject = (req.subject or current_student.subject or "science").lower()
     pdf_path = _require_pdf(subject)
     
     # ── RETRY MODE: Generate question targeting misconception ─────────────────
     if req.retry_context:
+        print("[enhanced] Retry mode - generating misconception-targeted question")
         ctx = req.retry_context
         chunks = retrieve(req.topic, pdf_path, top_k=10, topic=req.topic, subject=subject)
         chunk_texts = [c["text"] for c in chunks]
@@ -846,14 +876,17 @@ async def generate_question_enhanced(
         return retry_q
     
     # ── PREREQUISITE CHECK ─────────────────────────────────────────────────────
+    print(f"[enhanced] Checking prerequisites for topic: {req.topic}")
     prereq_result = check_prerequisites(
         req.topic,
         req.class_level,
         subject,
         req.mastery_scores
     )
+    print(f"[enhanced] Prerequisite check result: {prereq_result}")
     
     if not prereq_result["can_proceed"]:
+        print(f"[enhanced] BLOCKING - weak prerequisites: {prereq_result['weak_prerequisites']}")
         return {
             "blocked": True,
             "reason": prereq_result["suggested_action"],

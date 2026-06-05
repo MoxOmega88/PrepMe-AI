@@ -23,8 +23,13 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 
 def _resolve_pdf(subject: str) -> str:
-    if subject == "maths":
+    s = subject.lower().strip()
+    if s in ("maths", "mathematics"):
         raw = os.getenv("PDF_MATHS_PATH", "ncert_maths_8.pdf")
+    elif s in ("social", "social science", "social studies", "social_studies"):
+        raw = os.getenv("PDF_SOCIAL_PATH", "ncert_social_8.pdf")
+    elif s == "english":
+        raw = os.getenv("PDF_ENGLISH_PATH", "ncert_english_8.pdf")
     else:
         raw = os.getenv("PDF_SCIENCE_PATH", "ncert_science_8.pdf")
     if os.path.isabs(raw):
@@ -104,10 +109,16 @@ async def ask_tutor(
         raise HTTPException(status_code=400, detail="Question too short")
 
     mastery = max(0.0, min(1.0, req.mastery_score or 0.5))
-    subject_label = "Maths" if subject == "maths" else "Science"
+    subject_labels = {
+        "maths": "Mathematics", "mathematics": "Mathematics",
+        "social": "Social Science", "social science": "Social Science",
+        "social studies": "Social Science", "social_studies": "Social Science",
+        "english": "English", "science": "Science"
+    }
+    subject_label = subject_labels.get(subject, "Science")
 
     # ── RAG retrieval ──────────────────────────────────────────────────────────
-    chunks = retrieve(req.question, pdf_path, top_k=5, topic=req.topic)
+    chunks = retrieve(req.question, pdf_path, top_k=5, topic=req.topic, subject=subject)
     if chunks:
         context = "\n\n".join(f"[Page {c['pages']}]\n{c['text']}" for c in chunks)
         citations = [f"Pages {c['pages']}" for c in chunks[:3]]

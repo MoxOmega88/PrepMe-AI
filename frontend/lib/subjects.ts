@@ -78,12 +78,12 @@ export function getProgressForSubject(
   return { percent: 0, covered: 0, total: meta.chapters }
 }
 
-export function isApiSubject(subject: string): subject is "science" | "maths" {
-  return subject === "science" || subject === "maths"
+export function isApiSubject(subject: string): subject is "science" | "maths" | "social_studies" | "english" {
+  return subject === "science" || subject === "maths" || subject === "social_studies" || subject === "english"
 }
 
-export function isPlaceholderSubject(subject: string): subject is "social_studies" | "english" {
-  return subject === "social_studies" || subject === "english"
+export function isPlaceholderSubject(subject: string): boolean {
+  return false  // All subjects are now fully supported
 }
 
 export function getEnrolledSubjects(): string[] {

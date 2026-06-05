@@ -16,7 +16,18 @@ router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 
 
 def _weightage_for(user: User) -> dict:
-    return SCIENCE_WEIGHTAGE if user.subject == "science" else MATHS_WEIGHTAGE
+    subject = (user.subject or "science").lower()
+    if "science" in subject:
+        return SCIENCE_WEIGHTAGE
+    elif "math" in subject:
+        return MATHS_WEIGHTAGE
+    elif "social" in subject:
+        from routers.planner import SOCIAL_WEIGHTAGE
+        return SOCIAL_WEIGHTAGE
+    elif "english" in subject:
+        from routers.planner import ENGLISH_WEIGHTAGE
+        return ENGLISH_WEIGHTAGE
+    return SCIENCE_WEIGHTAGE
 
 
 def _mastery_profile_for_subject(scores: list, user: User) -> dict:

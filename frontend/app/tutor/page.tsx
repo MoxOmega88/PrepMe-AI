@@ -25,10 +25,29 @@ const MATHS_TOPICS = [
   "Algebraic Expressions","Mensuration","Exponents & Powers","Direct & Inverse Proportions",
   "Factorisation","Introduction to Graphs","Playing with Numbers",
 ]
+const SOCIAL_TOPICS = [
+  "Natural Resources and Their Conservation",
+  "Reshaping India's Political Map",
+  "The Rise of the Marathas",
+  "The Colonial Era in India",
+  "Universal Franchise and India's Electoral System",
+  "The Parliamentary System: Legislature and Executive",
+  "Factors of Production",
+]
+const ENGLISH_TOPICS = [
+  "The Wit that Won Hearts","A Concrete Example","Wisdom Paves the Way",
+  "A Tale of Valour: Major Somnath Sharma and the Battle of Badgam",
+  "Somebody's Mother","Verghese Kurien: I Too Had A Dream","The Case of the Fifth Word",
+  "The Magic Brush of Dreams","Spectacular Wonders","The Cherry Tree",
+  "Harvest Hymn","Waiting for the Rain","Feathered Friend","Magnifying Glass",
+  "Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science",
+]
 
 // Chapter index maps
 const SCIENCE_CHAPTER: Record<string, number> = Object.fromEntries(SCIENCE_TOPICS.map((t, i) => [t, i + 1]))
 const MATHS_CHAPTER: Record<string, number> = Object.fromEntries(MATHS_TOPICS.map((t, i) => [t, i + 1]))
+const SOCIAL_CHAPTER: Record<string, number> = Object.fromEntries(SOCIAL_TOPICS.map((t, i) => [t, i + 1]))
+const ENGLISH_CHAPTER: Record<string, number> = Object.fromEntries(ENGLISH_TOPICS.map((t, i) => [t, i + 1]))
 
 // Prebuilt starter questions per topic
 const SCIENCE_PREBUILT: Record<string, string[]> = {
@@ -162,6 +181,82 @@ const MATHS_PREBUILT: Record<string, string[]> = {
   ],
 }
 
+const SOCIAL_PREBUILT: Record<string, string[]> = {
+  "Natural Resources and Their Conservation": [
+    "What are natural resources?",
+    "Why is conservation of natural resources important?",
+    "What is the difference between renewable and non-renewable resources?",
+  ],
+  "Reshaping India's Political Map": [
+    "How was India's political map reshaped after independence?",
+    "What was the States Reorganisation Act?",
+    "How were states formed on linguistic basis?",
+  ],
+  "The Rise of the Marathas": [
+    "Who was Shivaji and what was his contribution?",
+    "What was the Maratha Confederacy?",
+    "How did the Marathas expand their empire?",
+  ],
+  "The Colonial Era in India": [
+    "How did the British establish colonial rule in India?",
+    "What were the effects of colonial rule on Indian economy?",
+    "What was the Doctrine of Lapse?",
+  ],
+  "Universal Franchise and India's Electoral System": [
+    "What is universal adult franchise?",
+    "How does the election process work in India?",
+    "What is the role of the Election Commission of India?",
+  ],
+  "The Parliamentary System: Legislature and Executive": [
+    "What are the functions of Parliament?",
+    "What is the difference between Lok Sabha and Rajya Sabha?",
+    "How is the Prime Minister appointed?",
+  ],
+  "Factors of Production": [
+    "What are the four factors of production?",
+    "What is the role of capital in production?",
+    "How does entrepreneurship differ from other factors of production?",
+  ],
+}
+
+const ENGLISH_PREBUILT: Record<string, string[]> = {
+  "The Wit that Won Hearts": [
+    "Who is the main character in this story?",
+    "What is the central theme of this chapter?",
+    "What lesson does this story teach us?",
+  ],
+  "A Concrete Example": [
+    "What does the title 'A Concrete Example' suggest?",
+    "What is the author trying to convey?",
+    "Describe the main character's situation.",
+  ],
+  "Wisdom Paves the Way": [
+    "What kind of wisdom is depicted in this story?",
+    "How does the protagonist solve the problem?",
+    "What is the moral of this story?",
+  ],
+  "Somebody's Mother": [
+    "Who is 'Somebody's Mother' in this poem?",
+    "What act of kindness is described in the poem?",
+    "What values does this poem highlight?",
+  ],
+  "Verghese Kurien: I Too Had A Dream": [
+    "Who was Verghese Kurien?",
+    "What was Operation Flood?",
+    "How did Kurien transform India's dairy industry?",
+  ],
+  "The Cherry Tree": [
+    "What does the cherry tree symbolize in this poem?",
+    "Who planted the tree and why?",
+    "How does the poem show the passage of time?",
+  ],
+  "Harvest Hymn": [
+    "What is the central theme of this poem?",
+    "How does the poet describe the harvest season?",
+    "What emotions does this poem evoke?",
+  ],
+}
+
 interface HistoryItem { role: "user" | "assistant"; content: string }
 interface Msg {
   role: "user" | "assistant"
@@ -253,12 +348,21 @@ export default function TutorPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const topics = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
+  const topics = subject === "maths" ? MATHS_TOPICS
+    : subject === "social_studies" || subject === "social" ? SOCIAL_TOPICS
+    : subject === "english" ? ENGLISH_TOPICS
+    : SCIENCE_TOPICS
   const mastery = topic !== "— General —" ? (profile?.mastery?.[topic]?.score ?? 0.5) : 0.5
   const masteryPct = mastery * 100
-  const chapterMap = subject === "maths" ? MATHS_CHAPTER : SCIENCE_CHAPTER
+  const chapterMap = subject === "maths" ? MATHS_CHAPTER
+    : subject === "social_studies" || subject === "social" ? SOCIAL_CHAPTER
+    : subject === "english" ? ENGLISH_CHAPTER
+    : SCIENCE_CHAPTER
   const chapterNum = topic !== "— General —" ? chapterMap[topic] : null
-  const prebuiltMap = subject === "maths" ? MATHS_PREBUILT : SCIENCE_PREBUILT
+  const prebuiltMap = subject === "maths" ? MATHS_PREBUILT
+    : subject === "social_studies" || subject === "social" ? SOCIAL_PREBUILT
+    : subject === "english" ? ENGLISH_PREBUILT
+    : SCIENCE_PREBUILT
   const prebuiltQuestions = topic !== "— General —" ? (prebuiltMap[topic] ?? []) : []
 
   // Reset on topic/subject change
@@ -339,7 +443,10 @@ export default function TutorPage() {
           <p className="section-label pink mb-1.5">AI Tutor</p>
           <h1 className="font-serif font-black text-[2rem] text-[#1A1A1A] leading-none">Ask anything.</h1>
           <p className="text-[#999] text-xs font-mono mt-1">
-            {subject === "maths" ? "NCERT Class 8 Maths" : "NCERT Class 8 Science"} · Adapts to your mastery
+            {subject === "maths" ? "NCERT Class 8 Maths" 
+              : subject === "social_studies" || subject === "social" ? "NCERT Class 8 Social Science"
+              : subject === "english" ? "NCERT Class 8 English"
+              : "NCERT Class 8 Science"} · Adapts to your mastery
           </p>
         </div>
 
@@ -405,7 +512,11 @@ export default function TutorPage() {
                     color: "#fff",
                     boxShadow: "2px 2px 0 #1A1A1A",
                   }}>
-                  {subject === "science" ? "Science" : "Maths"}
+                  {subject === "science" ? "Science" 
+                    : subject === "maths" ? "Maths"
+                    : subject === "social_studies" || subject === "social" ? "Social Sc."
+                    : subject === "english" ? "English"
+                    : "Science"}
                 </span>
               </div>
 
@@ -462,6 +573,28 @@ export default function TutorPage() {
                       <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("What is the area of a trapezium?")}>
                         "What is the area of a trapezium?"
+                      </p>
+                    </>
+                  ) : subject === "social_studies" || subject === "social" ? (
+                    <>
+                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
+                        onClick={() => send("What was the impact of colonial rule on India?")}>
+                        "What was the impact of colonial rule on India?"
+                      </p>
+                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#4A6FA5] transition-colors"
+                        onClick={() => send("How does India's parliamentary system work?")}>
+                        "How does India's parliamentary system work?"
+                      </p>
+                    </>
+                  ) : subject === "english" ? (
+                    <>
+                      <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
+                        onClick={() => send("What is the central theme of The Cherry Tree?")}>
+                        "What is the central theme of The Cherry Tree?"
+                      </p>
+                      <p className="text-[#999] text-xs font-mono cursor-pointer hover:text-[#4A6FA5] transition-colors"
+                        onClick={() => send("Describe Verghese Kurien's contribution to India.")}>
+                        "Describe Verghese Kurien's contribution to India."
                       </p>
                     </>
                   ) : (

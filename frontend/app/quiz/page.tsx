@@ -43,6 +43,32 @@ const MATHS_TOPICS = [
   "Factorisation",
   "Introduction to Graphs",
 ]
+const SOCIAL_TOPICS = [
+  "Natural Resources and Their Conservation",
+  "Reshaping India's Political Map",
+  "The Rise of the Marathas",
+  "The Colonial Era in India",
+  "Universal Franchise and India's Electoral System",
+  "The Parliamentary System: Legislature and Executive",
+  "Factors of Production",
+]
+const ENGLISH_TOPICS = [
+  "The Wit that Won Hearts",
+  "A Concrete Example",
+  "Wisdom Paves the Way",
+  "A Tale of Valour: Major Somnath Sharma and the Battle of Badgam",
+  "Somebody's Mother",
+  "Verghese Kurien: I Too Had A Dream",
+  "The Case of the Fifth Word",
+  "The Magic Brush of Dreams",
+  "Spectacular Wonders",
+  "The Cherry Tree",
+  "Harvest Hymn",
+  "Waiting for the Rain",
+  "Feathered Friend",
+  "Magnifying Glass",
+  "Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science",
+]
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type QType      = "mcq" | "truefalse" | "fillblank" | "short" | "mixed" | "teach_back"
@@ -292,14 +318,20 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
   blockedTopic: {reason: string, weakPrereqs: string[]} | null
   setBlockedTopic: (v: {reason: string, weakPrereqs: string[]} | null) => void
 }) {
-  const topics = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
+  const topics = subject === "maths" ? MATHS_TOPICS 
+    : subject === "social_studies" ? SOCIAL_TOPICS
+    : subject === "english" ? ENGLISH_TOPICS
+    : SCIENCE_TOPICS
   const [topic, setTopic]       = useState(initialTopic && topics.includes(initialTopic) ? initialTopic : topics[0])
   const [qType, setQType]       = useState<QType>("mixed")
   const [mode, setMode]         = useState<Mode>("practice")
   const [count, setCount]       = useState(5)
   const [difficulty, setDifficulty] = useState(0.5)
   useEffect(() => {
-    const list = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
+    const list = subject === "maths" ? MATHS_TOPICS
+      : subject === "social_studies" ? SOCIAL_TOPICS
+      : subject === "english" ? ENGLISH_TOPICS
+      : SCIENCE_TOPICS
     setTopic(initialTopic && list.includes(initialTopic) ? initialTopic : list[0])
   }, [subject, initialTopic])
 
@@ -405,12 +437,15 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
                   <input
                     type="checkbox"
                     checked={enhancedMode}
-                    onChange={(e) => setEnhancedMode(e.target.checked)}
+                    onChange={(e) => {
+                      console.log("[quiz] Enhanced mode checkbox clicked, new value:", e.target.checked)
+                      setEnhancedMode(e.target.checked)
+                    }}
                     className="w-4 h-4"
                   />
                   <div>
                     <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#1c1f3a]">
-                      Enhanced Mode
+                      Enhanced Mode {enhancedMode ? "✓" : ""}
                     </span>
                     <p className="text-[10px] text-[#666] mt-0.5">
                       Non-repeating questions + prerequisite check
@@ -428,7 +463,10 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
                     onClick={() => {
                       // Switch to first weak prerequisite
                       if (blockedTopic.weakPrereqs.length > 0) {
-                        const topics = subject === "maths" ? MATHS_TOPICS : SCIENCE_TOPICS
+                        const topics = subject === "maths" ? MATHS_TOPICS
+                          : subject === "social_studies" ? SOCIAL_TOPICS
+                          : subject === "english" ? ENGLISH_TOPICS
+                          : SCIENCE_TOPICS
                         const firstPrereq = blockedTopic.weakPrereqs[0]
                         if (topics.includes(firstPrereq)) {
                           setTopic(firstPrereq)
@@ -1148,6 +1186,8 @@ function QuizPageInner() {
     try {
       if (enhancedMode) {
         // Use enhanced endpoint
+        console.log("[quiz] Enhanced mode ON - using enhanced endpoint")
+        console.log("[quiz] Mastery scores:", profile?.mastery)
         const res = await authFetch("/api/quiz/generate-question-enhanced", {
           method: "POST",
           body: JSON.stringify({
@@ -1160,11 +1200,14 @@ function QuizPageInner() {
             retry_context: null
           }),
         })
+        console.log("[quiz] Enhanced endpoint response status:", res.status)
         if (!res.ok) return null
         const data = await res.json()
+        console.log("[quiz] Enhanced endpoint response:", data)
         
         // Check if blocked
         if (data.blocked) {
+          console.log("[quiz] BLOCKED - showing prerequisite warning")
           setBlockedTopic({
             reason: data.reason,
             weakPrereqs: data.weak_prerequisites || []
@@ -1179,11 +1222,13 @@ function QuizPageInner() {
             text: data.question,
             embedding: data.embedding
           }])
+          console.log("[quiz] Added question to history, total:", questionHistory.length + 1)
         }
         
         return { ...data, topic: cfg.topic }
       } else {
         // Use standard endpoint
+        console.log("[quiz] Enhanced mode OFF - using standard endpoint")
         const res = await authFetch("/api/quiz/generate-question", {
           method: "POST",
           body: JSON.stringify({
@@ -1199,6 +1244,8 @@ function QuizPageInner() {
   }, [authFetch, subject, enhancedMode, questionHistory, profile, setBlockedTopic, setPhase])
 
   const handleStart = async (cfg: { topic: string; qType: QType; mode: Mode; count: number; difficulty: number }) => {
+    console.log("[quiz] handleStart - Enhanced Mode:", enhancedMode)
+    console.log("[quiz] handleStart - Question History length:", questionHistory.length)
     setConfig(cfg); setAttempts([]); setQIdx(0); setTotalXP(0)
     setPrevQs([]); setCurDiff(cfg.difficulty); setPrevDiff(cfg.difficulty)
     setConsecutiveCorrect(0)

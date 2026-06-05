@@ -10,22 +10,52 @@ from numpy.linalg import norm
 
 from services.rag_service import get_embedder, groq_chat, retrieve
 
-# ── Prerequisite Map (Class 8-10 Science) ─────────────────────────────────────
+# ── Prerequisite Map (NCERT Class 8 - All Subjects) ───────────────────────────
 PREREQUISITES = {
-    "Electric Circuits": ["Conductors and Insulators", "Electricity Basics"],
-    "Magnetic Effects of Current": ["Electric Circuits"],
-    "Light Reflection": ["Basics of Light", "Mirrors"],
-    "Light Refraction": ["Light Reflection"],
-    "Chemical Equations": ["Chemical Reactions Basics"],
-    "Acids Bases Salts": ["Chemical Equations"],
-    "Carbon Compounds": ["Periodic Classification"],
-    "Force Laws of Motion": ["Motion Basics"],
-    "Gravitation": ["Force Laws of Motion"],
-    "Sound Waves": ["Motion Basics", "Vibration"],
-    "Heredity": ["Reproduction"],
-    "Algebraic Expressions": ["Variables and Constants"],
-    "Linear Equations": ["Algebraic Expressions"],
-    "Quadratic Equations": ["Linear Equations"],
+    # ── MATHEMATICS ──────────────────────────────────────────────────────────
+    "Linear Equations in One Variable": ["Rational Numbers"],
+    "Understanding Quadrilaterals": ["Practical Geometry"],
+    "Squares and Square Roots": ["Rational Numbers"],
+    "Cube and Cube Roots": ["Squares and Square Roots"],
+    "Algebraic Expressions and Identities": ["Linear Equations in One Variable"],
+    "Factorization": ["Algebraic Expressions and Identities"],
+    "Comparing Quantities": ["Rational Numbers"],
+    "Direct and Inverse Proportions": ["Comparing Quantities"],
+    "Introduction to Graphs": ["Data Handling"],
+    "Mensuration": ["Understanding Quadrilaterals"],
+    "Exponents and Powers": ["Squares and Square Roots"],
+    
+    # ── SCIENCE ──────────────────────────────────────────────────────────────
+    "The Invisible Living World: Beyond Our Naked Eye": ["Exploring the Investigative World of Science"],
+    "Health: The Ultimate Treasure": ["The Invisible Living World: Beyond Our Naked Eye"],
+    "Electricity: Magnetic and Heating Effects": ["Exploring Forces"],
+    "Pressure, Winds, Storms, and Cyclones": ["Exploring Forces"],
+    "Nature of Matter: Elements, Compounds, and Mixtures": ["Particulate Nature of Matter"],
+    "The Amazing World of Solutes, Solvents, and Solutions": [
+        "Particulate Nature of Matter",
+        "Nature of Matter: Elements, Compounds, and Mixtures"
+    ],
+    "Light: Mirrors and Lenses": ["Exploring Forces"],
+    "How Nature Works in Harmony": ["Keeping Time with the Skies"],
+    
+    # ── SOCIAL SCIENCE ───────────────────────────────────────────────────────
+    "Reshaping India's Political Map": ["Natural Resources and Their"],
+    "The Rise of the Marathas": ["Reshaping India's Political Map"],
+    "The Colonial Era in India": ["The Rise of the Marathas"],
+    "The Parliamentary System: Legislature and Executive": [
+        "Universal Franchise and India's Electoral System"
+    ],
+    "Factors of Production": ["Natural Resources and Their"],
+    
+    # ── ENGLISH ──────────────────────────────────────────────────────────────
+    # (English chapters are mostly independent literary pieces, minimal prerequisites)
+    "Verghese Kurien- I Too Had A Dream": ["A Concrete Example"],
+    "The Case of the Fifth Word": ["The Wit that Won Hearts"],
+    "Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science": [
+        "Verghese Kurien- I Too Had A Dream"
+    ],
+    "The Cherry Tree": ["Somebody's Mother"],
+    "Waiting for the Rain": ["Harvest Hymn"],
 }
 
 
@@ -116,7 +146,13 @@ def check_prerequisites(
     # Check mastery for each prerequisite
     weak_prereqs = []
     for prereq in prereqs:
-        score = mastery_scores.get(prereq, 0.5)  # Default to 0.5 if not found
+        mastery_data = mastery_scores.get(prereq, 0.5)
+        # Handle both dict format {"score": 0.8} and float format 0.8
+        if isinstance(mastery_data, dict):
+            score = mastery_data.get("score", 0.5)
+        else:
+            score = mastery_data if isinstance(mastery_data, (int, float)) else 0.5
+        
         if score < 0.50:
             weak_prereqs.append(prereq)
     
