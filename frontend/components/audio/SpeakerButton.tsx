@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from "react"
+import { Square, Volume2 } from "lucide-react"
 
 
 type Props = {
@@ -34,9 +35,10 @@ export default function SpeakerButton({ text, disabled }: Props) {
       aria-label={speaking ? "Stop audio" : "Play audio"}
       onClick={() => (speaking ? stop() : speak())}
       disabled={disabled}
-      className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200"
+      title={speaking ? "Stop audio" : "Play audio"}
+      className="inline-flex h-8 w-8 items-center justify-center rounded border border-[rgba(28,31,58,0.18)] bg-slate-100 text-[#1c1f3a] hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {speaking ? "■" : "🔊"}
+      {speaking ? <Square className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
     </button>
   )
 }

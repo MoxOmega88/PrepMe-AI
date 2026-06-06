@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useRef, useState } from "react"
 import { Recorder, transcribeBlob } from "@/services/audioService"
+import { Loader2, Mic, MicOff, RotateCcw } from "lucide-react"
 
 type Props = {
   onTranscribed?: (text: string) => void
@@ -95,20 +96,28 @@ export default function AudioRecorder({ onTranscribed, maxDurationSec = 45 }: Pr
   const actionDisabled = busy || state === "uploading" || state === "transcribing"
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <button
         onClick={() => (state === "recording" ? stop() : start())}
-        className="px-2 py-1 rounded bg-red-100 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label={state === "recording" ? "Stop recording" : "Record audio"}
+        title={state === "recording" ? "Stop recording" : "Record audio"}
+        className="inline-flex h-9 w-9 items-center justify-center rounded border border-[rgba(28,31,58,0.18)] bg-red-100 text-[#1c1f3a] hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={actionDisabled}
       >
-        {state === "recording" ? "Stop" : "Record"}
+        {state === "recording" ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
       </button>
-      <button onClick={rerecord} className="px-2 py-1 rounded bg-yellow-100 hover:bg-yellow-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled={state === "recording" || actionDisabled}>
-        Re-record
+      <button
+        onClick={rerecord}
+        aria-label="Re-record"
+        title="Re-record"
+        className="inline-flex h-9 w-9 items-center justify-center rounded border border-[rgba(28,31,58,0.18)] bg-yellow-100 text-[#1c1f3a] hover:bg-yellow-200 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={state === "recording" || actionDisabled}
+      >
+        <RotateCcw className="h-4 w-4" />
       </button>
-      <div>
-        {state === "uploading" && <span className="text-sm">Uploading...</span>}
-        {state === "transcribing" && <span className="text-sm">Transcribing...</span>}
+      <div className="min-w-0 text-sm">
+        {state === "uploading" && <span className="inline-flex items-center gap-1 text-sm"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading...</span>}
+        {state === "transcribing" && <span className="inline-flex items-center gap-1 text-sm"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Transcribing...</span>}
         {state === "completed" && <span className="text-sm text-green-600">Done</span>}
         {state === "error" && <span className="text-sm text-red-600">{error}</span>}
       </div>

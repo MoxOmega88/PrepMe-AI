@@ -732,10 +732,7 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
             <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-4 flex items-center gap-2">
               <span className="text-lg">✎</span> Teacher's Notes
             </p>
-            <div className="flex items-start gap-3">
-              <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
-              <SpeakerButton text={assessment.feedback_for_student} />
-            </div>
+            <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
           </div>
 
           {assessment.key_points_missed && assessment.key_points_missed.length > 0 && (
@@ -820,10 +817,7 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
           <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
             <span className="text-lg">✎</span> Teacher's Feedback
           </p>
-          <div className="flex items-start gap-3">
-            <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
-            <SpeakerButton text={assessment.feedback_for_student} />
-          </div>
+          <p className="text-lg text-[#c0392b] red-pen leading-relaxed">{assessment.feedback_for_student}</p>
         </div>
 
         {assessment.key_points_covered && assessment.key_points_covered.length > 0 && (
@@ -860,7 +854,10 @@ function FeedbackCard({ q, assessment, studentAnswer, xpEarned, confidence, onNe
             <p className="font-mono text-[10px] text-[#c0392b] uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
               <span className="text-lg">✎</span> Detailed Explanation
             </p>
-            <p className="text-lg text-[#1c1f3a] leading-relaxed">{q.explanation}</p>
+            <div className="flex items-start gap-3">
+              <p className="text-lg text-[#1c1f3a] leading-relaxed flex-1">{q.explanation}</p>
+              <SpeakerButton text={q.explanation} />
+            </div>
           </div>
         )}
 

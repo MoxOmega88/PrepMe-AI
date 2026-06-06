@@ -15,29 +15,10 @@ from config import get_settings
 from db.database import get_db
 from db.models import User
 from routers.deps import get_current_user
+from utils.paths import get_pdf_path
 
 router = APIRouter(prefix="/api/tutor", tags=["Tutor"])
 settings = get_settings()
-
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
-def _resolve_pdf(subject: str) -> str:
-    s = subject.lower().strip()
-    if s in ("maths", "mathematics"):
-        raw = os.getenv("PDF_MATHS_PATH", "ncert_maths_8.pdf")
-    elif s in ("social", "social science", "social studies", "social_studies"):
-        raw = os.getenv("PDF_SOCIAL_PATH", "ncert_social_8.pdf")
-    elif s == "english":
-        raw = os.getenv("PDF_ENGLISH_PATH", "ncert_english_8.pdf")
-    else:
-        raw = os.getenv("PDF_SCIENCE_PATH", "ncert_science_8.pdf")
-    if os.path.isabs(raw):
-        resolved = raw
-    else:
-        resolved = os.path.abspath(os.path.join(_PROJECT_ROOT, raw))
-    print(f"[tutor] subject={subject} pdf_path={resolved} exists={os.path.exists(resolved)}")
-    return resolved
 
 
 def _mastery_tone(mastery: float) -> str:
@@ -101,9 +82,9 @@ async def ask_tutor(
     db: AsyncSession = Depends(get_db),
 ):
     subject = (req.subject or user.subject or "science").lower()
-    pdf_path = _resolve_pdf(subject)
+    pdf_path = get_pdf_path(subject)
 
-    if not os.path.exists(pdf_path):
+    if not pdf_path.exists():
         raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
     if not req.question or len(req.question.strip()) < 3:
         raise HTTPException(status_code=400, detail="Question too short")
@@ -118,7 +99,7 @@ async def ask_tutor(
     subject_label = subject_labels.get(subject, "Science")
 
     # ── RAG retrieval ──────────────────────────────────────────────────────────
-    chunks = retrieve(req.question, pdf_path, top_k=5, topic=req.topic, subject=subject)
+    chunks = retrieve(req.question, str(pdf_path), top_k=5, topic=req.topic, subject=subject)
     if chunks:
         context = "\n\n".join(f"[Page {c['pages']}]\n{c['text']}" for c in chunks)
         citations = [f"Pages {c['pages']}" for c in chunks[:3]]

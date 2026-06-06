@@ -8,7 +8,6 @@ import uuid
 import random
 import datetime
 from datetime import datetime as dt
-from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends, Query
 from pydantic import BaseModel
 from typing import Optional, List
@@ -21,51 +20,12 @@ from db.database import get_db
 from db.models import User, QuizMistake, QuizAttempt, MasteryScore
 from db.crud import create
 from routers.deps import get_current_user
+from utils.paths import get_pdf_path
 
 router = APIRouter(prefix="/api/quiz", tags=["Quiz"])
 settings = get_settings()
 
 QUESTION_TYPES = ["mcq", "truefalse", "fillblank", "short"]
-
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MATHS_PDF_MISSING_MSG = (
-    "Maths textbook not found. Please ensure ncert_maths_8.pdf is available."
-)
-
-
-def _candidate_pdf_paths(raw: str) -> list[Path]:
-    raw_path = Path(raw)
-    if raw_path.is_absolute():
-        return [raw_path]
-
-    module_root = Path(__file__).resolve().parent
-    backend_root = module_root.parent
-    project_root = backend_root.parent
-    search_roots = [Path.cwd(), module_root, backend_root, project_root, project_root.parent]
-
-    candidates: list[Path] = []
-    seen: set[str] = set()
-
-    def _add(candidate: Path) -> None:
-        resolved = candidate.resolve()
-        key = str(resolved)
-        if key not in seen:
-            seen.add(key)
-            candidates.append(resolved)
-
-    for root in search_roots:
-        _add(root / raw_path)
-        _add(root / raw_path.name)
-
-    for root in search_roots:
-        try:
-            match = next(root.rglob(raw_path.name), None)
-        except Exception:
-            match = None
-        if match is not None:
-            _add(match)
-
-    return candidates
 
 SCIENCE_DEPENDENCIES = {
     "Pressure, Winds, Storms, and Cyclones": ["Exploring Forces"],
@@ -105,43 +65,6 @@ SOCIAL_DEPENDENCIES = {
 ENGLISH_DEPENDENCIES = {
     # English chapters are mostly independent literary pieces with minimal prerequisites
 }
-
-
-# ── PDF resolution ─────────────────────────────────────────────────────────────
-def _resolve_pdf(subject: str) -> str:
-    s = subject.lower().strip()
-    if s in ("maths", "mathematics"):
-        raw = os.getenv("PDF_MATHS_PATH", "ncert_maths_8.pdf")
-    elif s in ("social", "social science", "social studies", "social_studies"):
-        raw = os.getenv("PDF_SOCIAL_PATH", "ncert_social_8.pdf")
-    elif s == "english":
-        raw = os.getenv("PDF_ENGLISH_PATH", "ncert_english_8.pdf")
-    else:
-        raw = os.getenv("PDF_SCIENCE_PATH", "ncert_science_8.pdf")
-
-    resolved = None
-    for candidate in _candidate_pdf_paths(raw):
-        if candidate.exists():
-            resolved = str(candidate)
-            break
-
-    if resolved is None:
-        if os.path.isabs(raw):
-            resolved = raw
-        else:
-            resolved = os.path.abspath(os.path.join(_PROJECT_ROOT, raw))
-
-    print(f"[quiz] subject={s} pdf_path={resolved} exists={os.path.exists(resolved)}")
-    return resolved
-
-
-def _require_pdf(subject: str) -> str:
-    pdf_path = _resolve_pdf(subject)
-    if not os.path.exists(pdf_path):
-        if subject == "maths":
-            raise HTTPException(status_code=404, detail=MATHS_PDF_MISSING_MSG)
-        raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
-    return pdf_path
 
 
 # ── Difficulty label ───────────────────────────────────────────────────────────
@@ -401,7 +324,11 @@ async def create_question(
             }
 
         subject = (req.subject or current_student.subject or "science").lower()
-        pdf_path = _require_pdf(subject)
+        pdf_path = get_pdf_path(subject)
+        if not pdf_path.exists():
+            if subject == "maths":
+                raise HTTPException(status_code=404, detail="Maths textbook not found. Please ensure ncert_maths_8.pdf is available.")
+            raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
 
         difficulty = max(0.0, min(1.0, req.difficulty))
         q_type = (QUESTION_TYPES[req.question_index % len(QUESTION_TYPES)]
@@ -415,7 +342,7 @@ async def create_question(
             f"(lookup exact={topic_for_retrieve in TOPIC_TO_CHAPTER})"
         )
         chunks = retrieve(
-            topic_for_retrieve, pdf_path, top_k=15,
+            topic_for_retrieve, str(pdf_path), top_k=15,
             topic=topic_for_retrieve, subject=subject,
         )
         print(
@@ -498,7 +425,9 @@ async def assess_student_answer(
     db: AsyncSession = Depends(get_db),
 ):
     subject = (req.subject or current_student.subject or "science").lower()
-    pdf_path = _require_pdf(subject)
+    pdf_path = get_pdf_path(subject)
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
 
     # ── Objective types: direct comparison ────────────────────────────────────
     if req.question_type in ("mcq", "truefalse", "fillblank") and req.correct_answer is not None:
@@ -540,7 +469,7 @@ async def assess_student_answer(
             }
         else:
             difficulty = max(0.0, min(1.0, req.difficulty))
-            result = assess_answer(req.question, req.answer, pdf_path, difficulty, topic=req.topic, subject=subject)
+            result = assess_answer(req.question, req.answer, str(pdf_path), difficulty, topic=req.topic, subject=subject)
 
             # Add misconception for wrong short answers (score < 0.5)
             is_wrong = result.get("overall_score", 1.0) < 0.5
@@ -891,13 +820,15 @@ async def generate_question_enhanced(
     print(f"[enhanced] Mastery scores: {req.mastery_scores}")
     
     subject = (req.subject or current_student.subject or "science").lower()
-    pdf_path = _require_pdf(subject)
+    pdf_path = get_pdf_path(subject)
+    if not pdf_path.exists():
+        raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
     
     # ── RETRY MODE: Generate question targeting misconception ─────────────────
     if req.retry_context:
         print("[enhanced] Retry mode - generating misconception-targeted question")
         ctx = req.retry_context
-        chunks = retrieve(req.topic, pdf_path, top_k=10, topic=req.topic, subject=subject)
+        chunks = retrieve(req.topic, str(pdf_path), top_k=10, topic=req.topic, subject=subject)
         chunk_texts = [c["text"] for c in chunks]
         
         retry_q = generate_retry_question(

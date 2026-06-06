@@ -82,10 +82,23 @@ def transcribe_audio_file(
         )
 
     # Support both {"transcript": "..."} and {"text": "..."} response shapes
-    transcript = data.get("transcript") or data.get("text")
-    if not transcript:
+    # Validate response structure first
+    if "transcript" not in data and "text" not in data:
         raise WhisperServiceError(
-            f"Unexpected Whisper response shape (no 'transcript' or 'text' key): {data}"
+            f"Unexpected Whisper response shape "
+            f"(missing 'transcript' or 'text' key): {data}"
         )
 
-    return transcript.strip()
+    # Support both response formats
+    transcript = data.get("transcript") or data.get("text") or ""
+
+    # Normalize transcript
+    transcript = transcript.strip()
+
+    # Handle empty transcription separately
+    if not transcript:
+        raise WhisperServiceError(
+            "No speech detected in the audio recording."
+        )
+
+    return transcript

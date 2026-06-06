@@ -665,8 +665,8 @@ export default function TutorPage() {
             </div>
 
             {/* Input */}
-            <div className="flex gap-3 mt-2">
-              <div className="label-tape flex-1 flex flex-col">
+            <div className="flex flex-col gap-3 mt-2 sm:flex-row sm:items-end sm:gap-3">
+              <div className="label-tape flex-1 min-w-0 flex flex-col gap-2">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -676,7 +676,7 @@ export default function TutorPage() {
                     className="w-full resize-none bg-transparent text-[#1c1f3a] px-4 py-3 text-sm font-mono outline-none min-h-[46px] max-h-32 placeholder:text-[rgba(28,31,58,0.4)]"
                     rows={1}
                   />
-                  <div className="mt-2">
+                  <div className="min-w-0">
                     <AudioRecorder onTranscribed={(t) => setInput(t)} />
                   </div>
                 </div>
