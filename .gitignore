@@ -23,4 +23,28 @@ build/
 
 README.md
 
+# ── Node/JS ──────────────────────────────────────────────────────────────────
+node_modules/
+*.log
+
+# ── Python / local artifacts ───────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Frontend/Backend build output (if present) ─────────────────────────────
+frontend/.next/
+frontend/out/
+frontend/build/
+backend/__pycache__/
+backend/db/__pycache__/
+
+# ── Local runtime uploads / generated assets (keep repo clean) ───────────
+assets/
+
+# Local ngrok auth (never commit token)
+ngrok_auth_env.py
+
+
+
 
