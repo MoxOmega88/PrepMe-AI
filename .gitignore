@@ -21,7 +21,7 @@ dist/
 build/
 .pytest_cache/
 
-README.md
+
 
 # ── Node/JS ──────────────────────────────────────────────────────────────────
 node_modules/
