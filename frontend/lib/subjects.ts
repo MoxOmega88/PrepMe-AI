@@ -1,9 +1,11 @@
-export type AppSubject = "science" | "maths" | "social_studies" | "english"
+export type AppSubject = "science" | "maths" | "social" | "english"
+
+export type ApiSubject = "science" | "maths" | "social_studies" | "english"
 
 export const SUBJECT_TABS: { id: AppSubject; label: string; accent: string }[] = [
   { id: "science", label: "SCIENCE", accent: "#4A6FA5" },
   { id: "maths", label: "MATHS", accent: "#4A6FA5" },
-  { id: "social_studies", label: "SOCIAL STUDIES", accent: "#e07b39" },
+  { id: "social", label: "SOCIAL STUDIES", accent: "#e07b39" },
   { id: "english", label: "ENGLISH", accent: "#5e2b97" },
 ]
 
@@ -15,6 +17,7 @@ export const SUBJECT_PROGRESS_META: Record<
   Mathematics: { label: "MATHEMATICS", chapters: 14, color: "#1d3557" },
   science: { label: "SCIENCE", chapters: 15, color: "#2d6a4f" },
   maths: { label: "MATHEMATICS", chapters: 14, color: "#1d3557" },
+  social: { label: "SOCIAL STUDIES", chapters: 20, color: "#e07b39" },
   social_studies: { label: "SOCIAL STUDIES", chapters: 20, color: "#e07b39" },
   english: { label: "ENGLISH", chapters: 12, color: "#5e2b97" },
   "Social Studies": { label: "SOCIAL STUDIES", chapters: 20, color: "#e07b39" },
@@ -25,12 +28,26 @@ const DISPLAY_TO_ID: Record<string, AppSubject> = {
   Science: "science",
   Mathematics: "maths",
   Maths: "maths",
-  "Social Studies": "social_studies",
+  "Social Studies": "social",
+  Social: "social",
   English: "english",
 }
 
+export function normalizeSubject(subject: string | null | undefined): AppSubject | null {
+  if (!subject) return null
+  if (subject === "science" || subject === "maths" || subject === "social" || subject === "english") {
+    return subject
+  }
+  if (subject === "social_studies") return "social"
+  return DISPLAY_TO_ID[subject] ?? null
+}
+
+export function toApiSubject(subject: AppSubject): ApiSubject {
+  return subject === "social" ? "social_studies" : subject
+}
+
 export function displayNameToId(name: string): AppSubject | null {
-  return DISPLAY_TO_ID[name] ?? null
+  return normalizeSubject(name)
 }
 
 export function getProgressForSubject(
@@ -45,12 +62,12 @@ export function getProgressForSubject(
   const id = displayNameToId(displayName)
 
   if (id && isPlaceholderSubject(id)) {
-    const pct = id === "social_studies" ? 12 : 8
+    const pct = id === "social" ? 12 : 8
     const covered = Math.round((pct / 100) * meta.chapters)
     return { percent: pct, covered, total: meta.chapters }
   }
 
-  if (profile?.subject === id && profile.mastery) {
+  if (normalizeSubject(profile?.subject) === id && profile.mastery) {
     const scores = Object.values(profile.mastery).map((m) => m.score)
     if (scores.length > 0) {
       const avg = scores.reduce((a, b) => a + b, 0) / scores.length
@@ -78,8 +95,8 @@ export function getProgressForSubject(
   return { percent: 0, covered: 0, total: meta.chapters }
 }
 
-export function isApiSubject(subject: string): subject is "science" | "maths" | "social_studies" | "english" {
-  return subject === "science" || subject === "maths" || subject === "social_studies" || subject === "english"
+export function isApiSubject(subject: string): subject is AppSubject {
+  return subject === "science" || subject === "maths" || subject === "social" || subject === "english"
 }
 
 export function isPlaceholderSubject(subject: string): boolean {

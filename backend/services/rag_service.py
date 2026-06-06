@@ -11,6 +11,7 @@ from typing import List, Dict, Tuple, Optional
 import fitz  # PyMuPDF
 from groq import Groq
 from config import get_settings
+from utils.paths import get_pdf_path
 
 settings = get_settings()
 
@@ -31,29 +32,22 @@ SUBJECT_PDF_MAP = {
     "english":        "ncert_english_8.pdf",
 }
 
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 def _resolve_pdf_path(subject: str = "science") -> str:
-    """Resolve subject name to PDF file path."""
-    subject_key = subject.lower().strip()
-    pdf_filename = SUBJECT_PDF_MAP.get(subject_key, "ncert_science_8.pdf")
-    
-    # Check if it's an absolute path
-    if os.path.isabs(pdf_filename):
-        pdf_path = pdf_filename
-    else:
-        # Try project root first
-        pdf_path = os.path.join(_PROJECT_ROOT, pdf_filename)
-        if not os.path.exists(pdf_path):
-            # Try backend folder
-            backend_path = os.path.join(_PROJECT_ROOT, "backend", pdf_filename)
-            if os.path.exists(backend_path):
-                pdf_path = backend_path
-    
-    if not os.path.exists(pdf_path):
-        print(f"[rag] WARNING: PDF not found for subject '{subject}' at {pdf_path}")
-    
-    return pdf_path
+    """Resolve subject name to a canonical absolute PDF path."""
+    pdf_path = get_pdf_path(subject)
+    print(f"[rag] subject={subject} resolved_pdf={pdf_path} exists={pdf_path.exists()}")
+    return str(pdf_path)
+
+
+def _canonical_subject(subject: Optional[str]) -> str:
+    value = (subject or "science").lower().strip()
+    if value in ("maths", "mathematics"):
+        return "maths"
+    if value in ("social", "social science", "social studies", "social_studies"):
+        return "social"
+    if value == "english":
+        return "english"
+    return "science"
 
 # ── Topic → Chapter number mapping ────────────────────────────────────────────
 TOPIC_TO_CHAPTER: Dict[str, int] = {
@@ -143,19 +137,21 @@ def get_embedder():
     global _embedder
     if _embedder is None:
         from sentence_transformers import SentenceTransformer
-        print("[rag] loading embedding model…")
+        print("[rag] loading embedding model...")
         _embedder = SentenceTransformer("all-MiniLM-L6-v2")
         print("[rag] embedding model ready")
     return _embedder
 
 
-def get_or_build_index(pdf_path: str) -> Tuple[List[Dict], Optional[np.ndarray]]:
+def get_or_build_index(pdf_path: str, cache_namespace: Optional[str] = None) -> Tuple[List[Dict], Optional[np.ndarray]]:
     """Return cached index for pdf_path, building it if not yet cached."""
-    cache_key = f"{pdf_path}::{_INDEX_CACHE_VERSION}"
+    cache_key = f"{cache_namespace or pdf_path}::{pdf_path}::{_INDEX_CACHE_VERSION}"
     if cache_key in _index_cache:
+        chunks, embs = _index_cache[cache_key]
+        print(f"[rag] cache hit namespace={cache_namespace or 'global'} path={pdf_path} chunks={len(chunks)}")
         return _index_cache[cache_key]
 
-    print(f"[rag] building index for {pdf_path} (skipping first {PAGE_OFFSET} pages)…")
+    print(f"[rag] building index namespace={cache_namespace or 'global'} path={pdf_path} (skipping first {PAGE_OFFSET} pages)...")
 
     try:
         doc = fitz.open(pdf_path)
@@ -218,7 +214,7 @@ def get_or_build_index(pdf_path: str) -> Tuple[List[Dict], Optional[np.ndarray]]
         normalize_embeddings=True,
     ).astype("float32")
 
-    print(f"[rag] index ready — {len(chunks)} chunks, embeddings shape {embs.shape}")
+    print(f"[rag] index ready namespace={cache_namespace or 'global'} - {len(chunks)} chunks, embeddings shape {embs.shape}")
     _index_cache[cache_key] = (chunks, embs)
     return chunks, embs
 
@@ -281,7 +277,7 @@ def _filter_maths_chunks(chunks: List[Dict], embs: Optional[np.ndarray]) -> Tupl
     if kept:
         if embs is not None:
             embs = embs[indices]
-        print(f"[rag] maths chunk filter: {len(chunks)} → {len(kept)} explanatory chunks")
+        print(f"[rag] maths chunk filter: {len(chunks)} -> {len(kept)} explanatory chunks")
         return kept, embs
     print(f"[rag] maths chunk filter: no explanatory chunks passed, using unfiltered pool")
     return chunks, embs
@@ -307,14 +303,16 @@ def retrieve(
         subject: Subject name (science/maths/social/english) - preferred over pdf_path
     """
     # Resolve PDF path from subject if provided, otherwise use pdf_path
+    subject_key = _canonical_subject(subject)
     if subject:
-        resolved_pdf_path = _resolve_pdf_path(subject)
+        resolved_pdf_path = _resolve_pdf_path(subject_key)
     elif pdf_path:
         resolved_pdf_path = pdf_path
     else:
-        resolved_pdf_path = _resolve_pdf_path("science")
+        subject_key = "science"
+        resolved_pdf_path = _resolve_pdf_path(subject_key)
     
-    all_chunks, all_embs = get_or_build_index(resolved_pdf_path)
+    all_chunks, all_embs = get_or_build_index(resolved_pdf_path, cache_namespace=subject_key)
     if not all_chunks:
         return []
 
@@ -329,7 +327,7 @@ def retrieve(
         if chapter_indices:
             chunks = [all_chunks[i] for i in chapter_indices]
             embs   = all_embs[chapter_indices] if all_embs is not None else None
-            print(f"[rag] chapter filter: topic='{topic}' → chapter {target_chapter} → {len(chunks)} chunks")
+            print(f"[rag] chapter filter: subject={subject_key} topic='{topic}' -> chapter {target_chapter} -> {len(chunks)} chunks")
         else:
             # Chapter tagging may have failed for this PDF; fall back to full index
             print(f"[rag] chapter filter: no chunks found for chapter {target_chapter}, using full index")

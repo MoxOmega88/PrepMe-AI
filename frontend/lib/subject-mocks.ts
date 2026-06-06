@@ -1,6 +1,8 @@
 import type { Profile } from "@/lib/auth"
 import type { AppSubject } from "@/lib/subjects"
 
+const isSocialSubject = (subject: AppSubject | string) => subject === "social" || subject === "social_studies"
+
 function jsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -27,7 +29,7 @@ export function buildPlaceholderProfile(
   subject: AppSubject
 ): Profile {
   const mastery: Profile["mastery"] = {}
-  const topics = subject === "social_studies" ? SOCIAL_TOPICS : ENGLISH_TOPICS
+  const topics = isSocialSubject(subject) ? SOCIAL_TOPICS : ENGLISH_TOPICS
   topics.forEach((t) => {
     mastery[t.topic] = {
       score: t.score,
@@ -49,7 +51,7 @@ export function buildPlaceholderProfile(
 }
 
 function analyticsPayload(subject: AppSubject) {
-  const topics = subject === "social_studies" ? SOCIAL_TOPICS : ENGLISH_TOPICS
+  const topics = isSocialSubject(subject) ? SOCIAL_TOPICS : ENGLISH_TOPICS
   const avg =
     topics.reduce((s, t) => s + t.score, 0) / Math.max(topics.length, 1)
   return {
@@ -83,8 +85,7 @@ export function getMockResponse(
   }
 
   if (path === "/api/quiz/exam-prediction" && method === "GET") {
-    const topics =
-      subject === "social_studies" ? SOCIAL_TOPICS : ENGLISH_TOPICS
+    const topics = isSocialSubject(subject) ? SOCIAL_TOPICS : ENGLISH_TOPICS
     return jsonResponse({
       predicted_score: 68,
       confidence_level: "Medium",
@@ -101,7 +102,7 @@ export function getMockResponse(
   if (path.startsWith("/api/planner")) {
     if (path === "/api/planner/study-now" && method === "GET") {
       const topic =
-        subject === "social_studies"
+        isSocialSubject(subject)
           ? SOCIAL_TOPICS[0].topic
           : ENGLISH_TOPICS[0].topic
       return jsonResponse({ topic, subject })
@@ -127,7 +128,7 @@ export function getMockResponse(
           day: "Monday",
           date: new Date().toISOString().slice(0, 10),
           topic:
-            subject === "social_studies"
+              isSocialSubject(subject)
               ? SOCIAL_TOPICS[0].topic
               : ENGLISH_TOPICS[0].topic,
           duration_hours: 1,
@@ -137,7 +138,7 @@ export function getMockResponse(
         },
       ],
       weakest_topic:
-        subject === "social_studies"
+          isSocialSubject(subject)
           ? SOCIAL_TOPICS[1].topic
           : ENGLISH_TOPICS[1].topic,
     })
@@ -150,14 +151,14 @@ export function getMockResponse(
     if (path === "/api/quiz/generate-question" && method === "POST") {
       return jsonResponse({
         question:
-          subject === "social_studies"
+          isSocialSubject(subject)
             ? "Which part of the Constitution lists Fundamental Rights?"
             : "Identify the figure of speech in: 'The wind whispered through the trees.'",
         options: ["Option A", "Option B", "Option C", "Option D"],
         correct_index: 1,
         explanation: "Placeholder content — NCERT PDFs coming soon.",
         topic:
-          subject === "social_studies"
+          isSocialSubject(subject)
             ? SOCIAL_TOPICS[0].topic
             : ENGLISH_TOPICS[0].topic,
       })
@@ -182,7 +183,7 @@ export function getMockResponse(
     return jsonResponse({
       answer:
         "This is a preview response for " +
-        (subject === "social_studies" ? "Social Studies" : "English") +
+        (isSocialSubject(subject) ? "Social Studies" : "English") +
         ". Full NCERT-grounded tutoring is coming soon.",
       sources: [],
     })

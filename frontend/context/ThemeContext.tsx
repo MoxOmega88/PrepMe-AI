@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from "react"
+import { normalizeSubject } from "@/lib/subjects"
 
 type ThemeContextValue = {
   themeClass: string
@@ -17,6 +18,7 @@ const SUBJECT_TO_THEME: Record<string, string> = {
   // API keys
   science: "theme-science",
   maths: "theme-mathematics",
+  social: "theme-social",
   social_studies: "theme-social",
   english: "theme-english",
   // Display names (active_subject in localStorage)
@@ -48,9 +50,10 @@ function readSubject(): string {
   try {
     // Prefer the profile subject stored in prepme_user
     const user = JSON.parse(localStorage.getItem("prepme_user") || "{}")
-    if (user.subject) return user.subject
+    const subject = normalizeSubject(user.subject)
+    if (subject) return subject
   } catch { /* ignore */ }
-  return localStorage.getItem("active_subject") || "science"
+  return normalizeSubject(localStorage.getItem("active_subject")) || "science"
 }
 
 export function SubjectThemeProvider({ children }: { children: React.ReactNode }) {

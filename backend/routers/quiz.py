@@ -21,6 +21,13 @@ from db.models import User, QuizMistake, QuizAttempt, MasteryScore
 from db.crud import create
 from routers.deps import get_current_user
 from utils.paths import get_pdf_path
+from services.quiz_service import (
+    build_recent_questions_context,
+    get_recent_questions,
+    is_question_too_similar,
+    log_recent_question_state,
+    register_generated_question,
+)
 
 router = APIRouter(prefix="/api/quiz", tags=["Quiz"])
 settings = get_settings()
@@ -98,6 +105,7 @@ def _build_combined_prompt(
     difficulty: float,
     previous_questions: list,
     subject: str = "science",
+    recent_questions_context: str = "",
     retry_note: str = "",
 ) -> str:
     diff_instr = _difficulty_label(difficulty)
@@ -107,6 +115,7 @@ def _build_combined_prompt(
         avoid_block = f"\n\nDO NOT generate any of these previously asked questions:\n{listed}\n"
 
     retry_block = f"\n{retry_note}\n" if retry_note else ""
+    recent_block = f"\n{recent_questions_context}" if recent_questions_context else ""
     maths_rules = ""
     if subject == "maths":
         maths_rules = (
@@ -146,7 +155,7 @@ def _build_combined_prompt(
         f"Generate a {q_type} quiz question about {topic} for NCERT Class 8.\n"
         f"Based ONLY on this textbook content:\n{context}\n\n"
         f"DIFFICULTY: {diff_instr}\n"
-        f"{avoid_block}{retry_block}{maths_rules}\n"
+        f"{avoid_block}{recent_block}{retry_block}{maths_rules}\n"
         "Requirements:\n"
         "- Question must be self-contained and clear\n"
         "- Must test a specific concept from the content\n"
@@ -203,7 +212,7 @@ def _validate_question_external(data: dict, q_type: str) -> bool:
         )
         validation_text = raw.strip().upper()
         is_valid = validation_text.startswith("VALID")
-        print(f"[quiz] validation: {q_type} → {'VALID' if is_valid else 'INVALID'} ({validation_text[:30]})")
+        print(f"[quiz] validation: {q_type} -> {'VALID' if is_valid else 'INVALID'} ({validation_text[:30]})")
         return is_valid
     except Exception as e:
         print(f"[quiz] validation call failed: {e}")
@@ -329,6 +338,9 @@ async def create_question(
             if subject == "maths":
                 raise HTTPException(status_code=404, detail="Maths textbook not found. Please ensure ncert_maths_8.pdf is available.")
             raise HTTPException(status_code=404, detail=f"PDF not found: {pdf_path}")
+        recent_questions = get_recent_questions(current_student.id.hex, subject, req.topic, limit=12)
+        recent_questions_context = build_recent_questions_context(recent_questions)
+        log_recent_question_state(current_student.id.hex, subject, req.topic)
 
         difficulty = max(0.0, min(1.0, req.difficulty))
         q_type = (QUESTION_TYPES[req.question_index % len(QUESTION_TYPES)]
@@ -338,7 +350,7 @@ async def create_question(
         topic_for_retrieve = req.topic
         chapter_num = TOPIC_TO_CHAPTER.get(topic_for_retrieve)
         print(
-            f"[quiz] topic='{topic_for_retrieve}' → chapter {chapter_num} "
+            f"[quiz] topic='{topic_for_retrieve}' -> chapter {chapter_num} "
             f"(lookup exact={topic_for_retrieve in TOPIC_TO_CHAPTER})"
         )
         chunks = retrieve(
@@ -346,8 +358,8 @@ async def create_question(
             topic=topic_for_retrieve, subject=subject,
         )
         print(
-            f"[quiz] topic='{topic_for_retrieve}' → chapter {chapter_num} "
-            f"→ {len(chunks)} chunks retrieved"
+            f"[quiz] topic='{topic_for_retrieve}' -> chapter {chapter_num} "
+            f"-> {len(chunks)} chunks retrieved"
         )
         if not chunks:
             if subject in ("maths", "mathematics"):
@@ -366,8 +378,8 @@ async def create_question(
 
         chunks_sorted = sorted(chunks, key=_page_start)
 
-        def _finalize(data: dict) -> dict:
-            out = _normalize_question(data, q_type)
+        def _finalize(data: dict, question_type: Optional[str] = None) -> dict:
+            out = _normalize_question(data, question_type or q_type)
             out["difficulty"] = difficulty
             out["topic"] = req.topic
             return out
@@ -376,37 +388,49 @@ async def create_question(
         _log_chunks_used(sampled)
         context = "\n\n".join(c["text"] for c in sampled)
 
-        prompt = _build_combined_prompt(
-            q_type, req.topic, context, difficulty, req.previous_questions, subject
-        )
-        data = _generate_from_prompt(prompt)
-        if data and _is_valid_response(data):
-            print(f"[quiz] generated valid {q_type} question (single call)")
-            return _finalize(data)
+        max_generation_rounds = 3
+        used_hashes = set()
+        for generation_round in range(max_generation_rounds):
+            if generation_round == 0:
+                sampled_round = sampled
+                context_round = context
+                retry_note = ""
+            elif generation_round == 1:
+                print(f"[quiz] first attempt invalid or repetitive, retrying with different chunks")
+                used_hashes = {c.get("chunk_hash") for c in sampled}
+                sampled_round = _sample_chunks(chunks_sorted, exclude_hashes=used_hashes)
+                _log_chunks_used(sampled_round)
+                context_round = "\n\n".join(c["text"] for c in sampled_round)
+                retry_note = "Previous content did not yield a good question. Use different facts from this new context."
+            else:
+                print(f"[quiz] fallback attempt using factual MCQ")
+                sampled_round = _sample_chunks(chunks_sorted, exclude_hashes=used_hashes)
+                _log_chunks_used(sampled_round)
+                context_round = "\n\n".join(c["text"] for c in sampled_round) if sampled_round else context
+                retry_note = "Generate a simple, clear factual MCQ that is fully understandable on its own."
 
-        print(f"[quiz] first attempt invalid (valid={data.get('valid') if data else None}), retrying with different chunks")
-        used_hashes = {c.get("chunk_hash") for c in sampled}
-        sampled_retry = _sample_chunks(chunks_sorted, exclude_hashes=used_hashes)
-        _log_chunks_used(sampled_retry)
-        context_retry = "\n\n".join(c["text"] for c in sampled_retry)
-        prompt_retry = _build_combined_prompt(
-            q_type, req.topic, context_retry, difficulty, req.previous_questions, subject,
-            retry_note="Previous content did not yield a good question. Use different facts from this new context.",
-        )
-        data_retry = _generate_from_prompt(prompt_retry)
-        if data_retry and _is_valid_response(data_retry):
-            print(f"[quiz] retry succeeded with new chunks")
-            return _finalize(data_retry)
+            prompt_round = _build_combined_prompt(
+                q_type if generation_round < 2 else "mcq",
+                req.topic,
+                context_round,
+                difficulty,
+                req.previous_questions,
+                subject,
+                recent_questions_context=recent_questions_context,
+                retry_note=retry_note,
+            )
+            data_round = _generate_from_prompt(prompt_round)
+            if not data_round or not _is_valid_response(data_round):
+                continue
 
-        print(f"[quiz] retry failed, using factual MCQ fallback")
-        fallback_context = context_retry if sampled_retry else context
-        fallback_prompt = _build_combined_prompt(
-            "mcq", req.topic, fallback_context, difficulty, req.previous_questions, subject,
-            retry_note="Generate a simple, clear factual MCQ that is fully understandable on its own.",
-        )
-        fallback = _generate_from_prompt(fallback_prompt)
-        if fallback and _is_valid_response(fallback):
-            return _finalize({**fallback, "type": "mcq"})
+            candidate = _finalize(data_round, question_type=q_type if generation_round < 2 else "mcq")
+            if is_question_too_similar(candidate.get("question", ""), recent_questions):
+                print(f"[quiz] recent-history similarity too high for round {generation_round + 1}, regenerating")
+                continue
+
+            register_generated_question(current_student.id.hex, subject, req.topic, candidate.get("question", ""))
+            print(f"[quiz] generated valid {candidate.get('type', q_type)} question round={generation_round + 1}")
+            return candidate
 
         raise HTTPException(status_code=500, detail="Failed to generate a valid question after trying all models")
 

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth"
 import { Send, Copy, Check } from "lucide-react"
 import SpeakerButton from "@/components/audio/SpeakerButton"
 import AudioRecorder from "@/components/audio/AudioRecorder"
+import { normalizeSubject } from "@/lib/subjects"
 
 const SCIENCE_TOPICS = [
   "Exploring the Investigative World of Science",
@@ -340,6 +341,7 @@ export default function TutorPage() {
   const { profile, authFetch } = useAuth()
   const router = useRouter()
   const subject = profile?.subject ?? "science"
+  const normalizedSubject = normalizeSubject(subject) ?? "science"
   const [topic, setTopic] = useState("— General —")
   const [messages, setMessages] = useState<Msg[]>([])
   const [history, setHistory] = useState<HistoryItem[]>([])
@@ -350,20 +352,20 @@ export default function TutorPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const topics = subject === "maths" ? MATHS_TOPICS
-    : subject === "social_studies" || subject === "social" ? SOCIAL_TOPICS
-    : subject === "english" ? ENGLISH_TOPICS
+  const topics = normalizedSubject === "maths" ? MATHS_TOPICS
+    : normalizedSubject === "social" ? SOCIAL_TOPICS
+    : normalizedSubject === "english" ? ENGLISH_TOPICS
     : SCIENCE_TOPICS
   const mastery = topic !== "— General —" ? (profile?.mastery?.[topic]?.score ?? 0.5) : 0.5
   const masteryPct = mastery * 100
-  const chapterMap = subject === "maths" ? MATHS_CHAPTER
-    : subject === "social_studies" || subject === "social" ? SOCIAL_CHAPTER
-    : subject === "english" ? ENGLISH_CHAPTER
+  const chapterMap = normalizedSubject === "maths" ? MATHS_CHAPTER
+    : normalizedSubject === "social" ? SOCIAL_CHAPTER
+    : normalizedSubject === "english" ? ENGLISH_CHAPTER
     : SCIENCE_CHAPTER
   const chapterNum = topic !== "— General —" ? chapterMap[topic] : null
-  const prebuiltMap = subject === "maths" ? MATHS_PREBUILT
-    : subject === "social_studies" || subject === "social" ? SOCIAL_PREBUILT
-    : subject === "english" ? ENGLISH_PREBUILT
+  const prebuiltMap = normalizedSubject === "maths" ? MATHS_PREBUILT
+    : normalizedSubject === "social" ? SOCIAL_PREBUILT
+    : normalizedSubject === "english" ? ENGLISH_PREBUILT
     : SCIENCE_PREBUILT
   const prebuiltQuestions = topic !== "— General —" ? (prebuiltMap[topic] ?? []) : []
 
@@ -445,9 +447,9 @@ export default function TutorPage() {
           <p className="section-label pink mb-1.5">AI Tutor</p>
           <h1 className="font-serif font-black text-[2rem] text-[#1A1A1A] leading-none">Ask anything.</h1>
           <p className="text-[#999] text-xs font-mono mt-1">
-            {subject === "maths" ? "NCERT Class 8 Maths" 
-              : subject === "social_studies" || subject === "social" ? "NCERT Class 8 Social Science"
-              : subject === "english" ? "NCERT Class 8 English"
+            {normalizedSubject === "maths" ? "NCERT Class 8 Maths" 
+              : normalizedSubject === "social" ? "NCERT Class 8 Social Science"
+              : normalizedSubject === "english" ? "NCERT Class 8 English"
               : "NCERT Class 8 Science"} · Adapts to your mastery
           </p>
         </div>
@@ -514,10 +516,10 @@ export default function TutorPage() {
                     color: "#fff",
                     boxShadow: "2px 2px 0 #1A1A1A",
                   }}>
-                  {subject === "science" ? "Science" 
-                    : subject === "maths" ? "Maths"
-                    : subject === "social_studies" || subject === "social" ? "Social Sc."
-                    : subject === "english" ? "English"
+                  {normalizedSubject === "science" ? "Science" 
+                    : normalizedSubject === "maths" ? "Maths"
+                    : normalizedSubject === "social" ? "Social Sc."
+                    : normalizedSubject === "english" ? "English"
                     : "Science"}
                 </span>
               </div>
@@ -566,7 +568,7 @@ export default function TutorPage() {
               {messages.length === 0 && (
                 <div className="text-center mt-10">
                   <p className="section-label green justify-center mb-3">Try asking</p>
-                  {subject === "maths" ? (
+                  {normalizedSubject === "maths" ? (
                     <>
                       <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("How do I factorise quadratic expressions?")}>
@@ -577,7 +579,7 @@ export default function TutorPage() {
                         "What is the area of a trapezium?"
                       </p>
                     </>
-                  ) : subject === "social_studies" || subject === "social" ? (
+                  ) : normalizedSubject === "social" ? (
                     <>
                       <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("What was the impact of colonial rule on India?")}>
@@ -588,7 +590,7 @@ export default function TutorPage() {
                         "How does India's parliamentary system work?"
                       </p>
                     </>
-                  ) : subject === "english" ? (
+                  ) : normalizedSubject === "english" ? (
                     <>
                       <p className="text-[#999] text-xs font-mono mb-1.5 cursor-pointer hover:text-[#4A6FA5] transition-colors"
                         onClick={() => send("What is the central theme of The Cherry Tree?")}>

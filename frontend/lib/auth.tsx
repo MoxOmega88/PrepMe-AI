@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import type { AppSubject } from "@/lib/subjects"
-import { isApiSubject, isPlaceholderSubject } from "@/lib/subjects"
-import { buildPlaceholderProfile, getMockResponse } from "@/lib/subject-mocks"
+import { isApiSubject, normalizeSubject, toApiSubject } from "@/lib/subjects"
+import { buildPlaceholderProfile } from "@/lib/subject-mocks"
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
@@ -47,10 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ? localStorage.getItem("prepme_token") || localStorage.getItem("token")
         : null)
     const sub = profile?.subject ?? "science"
-    if (isPlaceholderSubject(sub)) {
-      const mock = getMockResponse(path, init, sub)
-      if (mock) return mock
-    }
     return fetch(`${API}${path}`, {
       ...init,
       headers: {
@@ -70,12 +66,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json()
         const active =
           typeof window !== "undefined"
-            ? localStorage.getItem("active_subject")
+            ? normalizeSubject(localStorage.getItem("active_subject"))
             : null
-        if (active && isPlaceholderSubject(active)) {
-          setProfile(buildPlaceholderProfile(data, active as AppSubject))
+        const apiSubject = normalizeSubject(data?.subject)
+        const nextSubject = active ?? apiSubject ?? "science"
+        console.debug("[subject-switch] profile.subject <-", nextSubject)
+        if (!data?.subject && active) {
+          setProfile(buildPlaceholderProfile(data, nextSubject))
         } else {
-          setProfile(data)
+          setProfile({ ...data, subject: nextSubject })
         }
       }
     } catch {
@@ -149,16 +148,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token, fetchProfile])
 
   const setSubject = useCallback(async (subject: AppSubject) => {
-    if (profile?.subject === subject) return
+    const nextSubject = normalizeSubject(subject) ?? "science"
+    if (profile?.subject === nextSubject) return
+    console.debug("[subject-switch] setSubject clicked ->", subject, "normalized ->", nextSubject, "current ->", profile?.subject)
     if (typeof window !== "undefined") {
-      localStorage.setItem("active_subject", subject)
+      localStorage.setItem("active_subject", nextSubject)
     }
-    if (isPlaceholderSubject(subject)) {
-      setProfile((p) => buildPlaceholderProfile(p, subject))
-      setSubjectVersion((v) => v + 1)
-      return
-    }
-    if (!isApiSubject(subject)) return
+    if (!isApiSubject(nextSubject)) return
+    const apiSubject = toApiSubject(nextSubject)
     const res = await fetch(`${API}/api/profile/`, {
       method: "PATCH",
       headers: {
@@ -173,13 +170,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           : {}),
       },
-      body: JSON.stringify({ subject }),
+      body: JSON.stringify({ subject: apiSubject }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
       throw new Error(err.detail || "Failed to switch subject")
     }
     await refreshProfile()
+    console.debug("[subject-switch] setSubject completed ->", nextSubject)
     setSubjectVersion((v) => v + 1)
   }, [profile, token, refreshProfile])
 

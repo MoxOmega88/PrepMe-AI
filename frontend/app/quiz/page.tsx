@@ -14,6 +14,7 @@ import Link from "next/link"
 import { PencilBar } from "@/components/ui/pencil-bar"
 import SpeakerButton from "@/components/audio/SpeakerButton"
 import AudioRecorder from "@/components/audio/AudioRecorder"
+import { normalizeSubject } from "@/lib/subjects"
 
 // ── Topic lists ────────────────────────────────────────────────────────────────
 const SCIENCE_TOPICS = [
@@ -320,8 +321,9 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
   blockedTopic: {reason: string, weakPrereqs: string[]} | null
   setBlockedTopic: (v: {reason: string, weakPrereqs: string[]} | null) => void
 }) {
-  const topics = subject === "maths" ? MATHS_TOPICS 
-    : subject === "social_studies" ? SOCIAL_TOPICS
+  const normalizedSubject = normalizeSubject(subject) ?? "science"
+  const topics = normalizedSubject === "maths" ? MATHS_TOPICS 
+    : normalizedSubject === "social" ? SOCIAL_TOPICS
     : subject === "english" ? ENGLISH_TOPICS
     : SCIENCE_TOPICS
   const [topic, setTopic]       = useState(initialTopic && topics.includes(initialTopic) ? initialTopic : topics[0])
@@ -330,12 +332,12 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
   const [count, setCount]       = useState(5)
   const [difficulty, setDifficulty] = useState(0.5)
   useEffect(() => {
-    const list = subject === "maths" ? MATHS_TOPICS
-      : subject === "social_studies" ? SOCIAL_TOPICS
+    const list = normalizedSubject === "maths" ? MATHS_TOPICS
+      : normalizedSubject === "social" ? SOCIAL_TOPICS
       : subject === "english" ? ENGLISH_TOPICS
       : SCIENCE_TOPICS
     setTopic(initialTopic && list.includes(initialTopic) ? initialTopic : list[0])
-  }, [subject, initialTopic])
+  }, [subject, initialTopic, normalizedSubject])
 
   const selectCls = "w-full bg-[#F5F0E8] border border-[#C0BAB0] text-[#1c1f3a] px-3 py-2.5 text-xs font-mono outline-none focus:border-[#4A6FA5] transition-colors rounded-none"
 
@@ -465,8 +467,8 @@ function SetupScreen({ subject, onStart, onJournal, initialTopic, enhancedMode, 
                     onClick={() => {
                       // Switch to first weak prerequisite
                       if (blockedTopic.weakPrereqs.length > 0) {
-                        const topics = subject === "maths" ? MATHS_TOPICS
-                          : subject === "social_studies" ? SOCIAL_TOPICS
+                        const topics = normalizedSubject === "maths" ? MATHS_TOPICS
+                          : normalizedSubject === "social" ? SOCIAL_TOPICS
                           : subject === "english" ? ENGLISH_TOPICS
                           : SCIENCE_TOPICS
                         const firstPrereq = blockedTopic.weakPrereqs[0]

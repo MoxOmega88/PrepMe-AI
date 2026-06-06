@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { normalizeSubject, type AppSubject } from "@/lib/subjects"
 
 // Fixed positions for the 12 background icon slots — mirrors the existing layout
 const POSITIONS = [
@@ -96,18 +97,22 @@ const SUBJECT_ICONS: Record<string, typeof SCIENCE_ICONS> = {
   Science: SCIENCE_ICONS,
   Mathematics: MATHS_ICONS,
   "Social Studies": SOCIAL_ICONS,
+  social: SOCIAL_ICONS,
+  social_studies: SOCIAL_ICONS,
   English: ENGLISH_ICONS,
 }
 
 export default function SubjectBackground() {
-  const [subject, setSubject] = useState("Science")
+  const [subject, setSubject] = useState<AppSubject>("science")
 
   useEffect(() => {
-    const stored = localStorage.getItem("active_subject") || "Science"
+    const stored = normalizeSubject(localStorage.getItem("active_subject")) || "science"
     setSubject(stored)
 
     function onStorage(e: StorageEvent) {
-      if (e.key === "active_subject" && e.newValue) setSubject(e.newValue)
+      if (e.key === "active_subject" && e.newValue) {
+        setSubject(normalizeSubject(e.newValue) || "science")
+      }
     }
     window.addEventListener("storage", onStorage)
     return () => window.removeEventListener("storage", onStorage)
