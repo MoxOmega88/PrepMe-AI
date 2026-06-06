@@ -1,0 +1,87 @@
+Created At: 2026-05-21T15:11:03Z
+Completed At: 2026-05-21T15:11:03Z
+File Path: `file:///c:/PrepMeModel-main/frontend/app/page.tsx`
+Total Lines: 228
+Total Bytes: 10390
+Showing lines 1 to 228
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: "use client"
+2: 
+3: import { useEffect, useState } from "react"
+4: import { useRouter } from "next/navigation"
+5: import { AppShell } from "@/components/layout/app-shell"
+6: import { useAuth } from "@/lib/auth"
+7: import { ArrowRight, Target, CalendarDays, CheckCircle2, BarChart3, BookOpen, AlertCircle, Compass, Play } from "lucide-react"
+8: import Link from "next/link"
+9: 
+10: interface Analytics {
+11:   readiness: number; days_to_exam: number; sessions_done: number; avg_mastery: number
+12:   topic_performance: { topic: string; score: number; tag: string }[]
+13:   priority_queue: { topic: string; score: number; reason: string }[]
+14: }
+15: 
+16: function MasteryBar({ score }: { score: number }) {
+17:   const color = score < 0.5 ? "#FF4D6D" : score < 0.7 ? "#F5A623" : "#39FF6A"
+18:   return (
+19:     <div className="flex items-center gap-2">
+20:       <div className="neo-progress flex-1">
+21:         <div className="neo-progress-fill" style={{ width: `${score * 100}%`, backgroundColor: color }} />
+22:       </div>
+23:       <span className="font-mono text-xs w-8 text-right tabular-nums" style={{ color }}>{(score * 100).toFixed(0)}%</span>
+24:     </div>
+25:   )
+26: }
+27: 
+28: function Tag({ tag }: { tag: string }) {
+29:   const styles: Record<string, string> = {
+30:     Weak:     "text-[#FF4D6D] border border-[#FF4D6D]",
+31:     Building: "text-[#F5A623] border border-[#F5A623]",
+32:     Good:     "text-[#39FF6A] border border-[#39FF6A]",
+33:   }
+34:   return <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 uppercase tracking-widest ${styles[tag] ?? ""}`}>{tag}</span>
+35: }
+<truncated 7841 bytes>
+                      </div>
+187:                       </li>
+188:                     ))}
+189:                   </ol>
+190:                 ) : (
+191:                   <p className="font-mono text-xs text-[#444]">Loading…</p>
+192:                 )}
+193:               </div>
+194:             </div>
+195: 
+196:             {/* CTA card — "What to study next" */}
+197:             {top3[0] && (
+198:               <div className="neo-card neo-card-pink relative overflow-visible animate-float" style={{ animationDelay: "0.5s" }}>
+199:                 <div className="retro-titlebar" style={{ background: "#FFF0F3", borderBottomColor: "rgba(255,77,109,0.2)" }}>
+200:                   <span className="section-label pink flex items-center gap-1.5"><Compass className="w-3.5 h-3.5" />What to study next</span>
+201:                   <div className="retro-titlebar-dots">
+202:                     <span style={{ background: "#FF4D6D" }} />
+203:                     <span style={{ background: "#C0BAB0" }} />
+204:                     <span style={{ background: "#C0BAB0" }} />
+205:                   </div>
+206:                 </div>
+207:                 <div className="p-5">
+208:                   <p className="font-serif font-black text-xl text-[#1A1A1A] leading-tight mb-4">
+209:                     {top3[0].topic}
+210:                   </p>
+211:                   <div className="flex gap-2 flex-wrap">
+212:                     <Link href="/tutor"
+213:                       className="brut-btn brut-btn-pink inline-flex items-center gap-2 px-5 py-2.5 text-xs">
+214:                       Start with AI Tutor <ArrowRight className="h-3 w-3" />
+215:                     </Link>
+216:                     <StudyNowButton topic={top3[0].topic} />
+217:                   </div>
+218:                 </div>
+219:               </div>
+220:             )}
+221: 
+222:           </div>
+223:         </div>
+224:       </div>
+225:     </AppShell>
+226:   )
+227: }
+228: 
+The above content shows the entire, complete file contents of the requested file.
