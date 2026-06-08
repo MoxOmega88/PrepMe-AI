@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { usePathname, useRouter } from "next/navigation"
@@ -38,6 +38,10 @@ const BriefcaseNavItem = ({
   const active = pathname === href
   const [phase, setPhase] = useState<"idle"|"shake"|"open">("idle")
   const [hovered, setHovered] = useState(false)
+
+  useEffect(() => {
+    router.prefetch(href)
+  }, [href, router])
 
   const handleClick = () => {
     if (phase !== "idle") return
@@ -203,6 +207,16 @@ const BriefcaseNavItem = ({
 export function TopNav() {
   const router = useRouter()
   const { profile, logout } = useAuth()
+
+  useEffect(() => {
+    router.prefetch("/home")
+    router.prefetch("/tutor")
+    router.prefetch("/quiz")
+    router.prefetch("/planner")
+    router.prefetch("/analytics")
+    router.prefetch("/exam")
+    router.prefetch("/profile")
+  }, [router])
 
   const handleLogout = () => { logout(); router.push("/login") }
 
